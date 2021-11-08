@@ -5,9 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Claude"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <StackPanel Name="windowMain">
-        <Button>Test</Button>
-        <TextBlock x:Name="installedGames"></TextBlock>
-    </StackPanel>
+        Title="Claude" Height="450" Width="800">
+
+    <Grid Name="windowMain" RenderTransformOrigin="0.51,0.194">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="5*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="25*"/>
+        </Grid.RowDefinitions>
+        <TextBlock x:Name="menuHeader" Text="This is eventually gonna be a menu bar" Grid.Column="0" Grid.Row="0"></TextBlock>
+        <ScrollViewer x:Name="smallerBoxInstalled" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" Grid.Column="0" Grid.Row="1"></ScrollViewer>
+        <ScrollViewer x:Name="biggerBoxInstalled" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" Grid.Column="1" Grid.Row="1">
+        </ScrollViewer>
+    </Grid>
 </Window>

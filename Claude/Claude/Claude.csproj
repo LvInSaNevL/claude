@@ -8,8 +8,34 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Splashscreen.png" />
+    <None Remove="Resources\SteamHolder.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="Resources\ResourceDictionary.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Gameloop.Vdf" Version="0.6.1" />
     <PackageReference Include="Gameloop.Vdf.JsonConverter" Version="0.2.1" />
+    <PackageReference Include="IdentityModel" Version="5.2.0" />
+    <PackageReference Include="IdentityModel.OidcClient" Version="4.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\ResourceDictionary.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Resource>
+    <Resource Include="Resources\SteamHolder.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <SplashScreen Include="Resources\Splashscreen.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </SplashScreen>
   </ItemGroup>
 
 </Project>
