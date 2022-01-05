@@ -38,4 +38,17 @@
     </SplashScreen>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Steam.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Steam.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
 </Project>

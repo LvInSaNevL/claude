@@ -2,12 +2,12 @@
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 
 public class Computer
 {
-    // File Paths
-    private static readonly string cache = Directory.GetCurrentDirectory() + "/cache";
+    public static readonly string cache = Directory.GetCurrentDirectory() + "/cache";
+    public static readonly string steamapps = Directory.GetCurrentDirectory() + "/cache/steamapps";
 
     public static void TempDownload(string url, string filename)
     {
@@ -16,6 +16,8 @@ public class Computer
             using WebClient client = new WebClient(); client.DownloadFile(new Uri(url), $"{cache}/{filename}");
         }
     }
+
+    public static string CachePath(string target) { return $"{cache}/{target}"; }
 
 	public static void Terminal(string command)
     {
@@ -31,5 +33,14 @@ public class Computer
     public static void Initialize()
     {
         Directory.CreateDirectory(cache);
+        Directory.CreateDirectory(steamapps);
+    }
+
+    public struct Game
+    {
+        public string Id { get; set; }
+        public string Title { get; set; }
+        public string Launcher { get; set; }
+        public string Path { get; set; }
     }
 }

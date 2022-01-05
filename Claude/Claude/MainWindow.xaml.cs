@@ -41,10 +41,10 @@ namespace Claude
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            List<string> steamGames = Steam.InstalledAsync().Result;
+            List<Computer.Game> steamGames = Steam.InstalledAsync().Result;
 
             Grid gameGrid = new Grid();
-            int gridWidth = (int)biggerBoxInstalled.ActualWidth / 460;
+            int gridWidth = (int)biggerBoxInstalled.ActualWidth / 345;
             int gridHeight = steamGames.Count / gridWidth;
 
             RowDefinition[] rows = new RowDefinition[gridHeight];
@@ -61,10 +61,13 @@ namespace Claude
                 gameGrid.ColumnDefinitions.Add(columns[i]);
             }
 
-            StackPanel textStack = new StackPanel
+            Expander steamLibrary = new Expander
             {
-                Orientation = Orientation.Vertical
+                ExpandDirection = ExpandDirection.Down,
+                IsExpanded = true,
+                Header = "Steam Library",
             };
+            StackPanel textStack = new StackPanel { Orientation = Orientation.Vertical };
 
             int counter = 0;
             for (int x = 0; x < gridHeight; x++)
@@ -72,21 +75,14 @@ namespace Claude
                 for (int y = 0; y < gridWidth; y++)
                 {
                     counter++;
-                    string gameID = steamGames[counter - 1];
+                    Computer.Game nowgame = steamGames[counter - 1];
 
                     // Adding button image to big box art
                     BitmapImage target = new BitmapImage();
-                    try { target = new BitmapImage(new Uri($"{Directory.GetCurrentDirectory()}/cache/{gameID}.jpg")); }
+                    try { target = new BitmapImage(new Uri(Computer.CachePath($"{nowgame.Id}.jpg"))); }
                     catch { target = new BitmapImage(new Uri(@"pack://application:,,,/Resources/SteamHolder.jpg", UriKind.Absolute)); }
 
-                    Button gameButton = new Button
-                    {
-                        Tag = gameID,
-                        Content = new Image { Source = target },
-                        Height = 215,
-                        Width = 460,
-                        ToolTip = gameID,
-                    };
+                    Button gameButton = ControlBuilder.BoxArtButton(nowgame.Title, nowgame.Id, target, nowgame.Launcher);
                     gameButton.Click += GameButtonClick;
                     Grid.SetColumn(gameButton, y);
                     Grid.SetRow(gameButton, x);
@@ -96,8 +92,8 @@ namespace Claude
                     // Adding text to small box art
                     Button gameText = new Button
                     {
-                        Tag = gameID,
-                        Content = gameID,
+                        Tag = nowgame.Id,
+                        Content = nowgame.Title,
                         Height = 50
                     };
                     gameText.Click += GameButtonClick;
@@ -105,16 +101,38 @@ namespace Claude
                 }
             };
 
-            smallerBoxInstalled.Content = textStack;
+            steamLibrary.Content = textStack;
+            leftHandMenu.Content = steamLibrary;
             biggerBoxInstalled.Content = gameGrid;
         }
 
-        public static void GameButtonClick(object sender, RoutedEventArgs e)
+
+        /// <summary>
+        /// Start button handlers 
+        /// </summary>
+        
+
+        public void GameButtonClick(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            Computer.Terminal("steam://rungameid/" + button.Content);
+            Steam.Launch(button.Tag.ToString());
         }
         
+        public void settingsButtonClick(object sender, RoutedEventArgs e)
+        {
+            var item = sender as Button;
+            ClaudeSettings settings = new ClaudeSettings(item.Tag.ToString());
+            settings.Show();
+        }
+
+        public void settingsMenuClick(object sender, RoutedEventArgs e)
+        {
+            var addButton = sender as FrameworkElement;
+            if (addButton != null)
+            {
+                addButton.ContextMenu.IsOpen = true;
+            }
+        }
 
         private async void steamAuthRoute(object sender, RoutedEventArgs e) { await Steam.AuthenticateAsync(); }
     }

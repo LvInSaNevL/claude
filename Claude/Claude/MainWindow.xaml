@@ -7,18 +7,64 @@
         mc:Ignorable="d"
         Title="Claude" Height="450" Width="800">
 
-    <Grid Name="windowMain" RenderTransformOrigin="0.51,0.194">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" />
-            <ColumnDefinition Width="5*" />
-        </Grid.ColumnDefinitions>
+    <Window.Resources>
+        <Style x:Key="mainMenuHeader" TargetType="StackPanel">
+            <Setter Property="Background" Value="Blue" />
+        </Style>
+        <Style x:Key="settingsMenu" TargetType="MenuItem">
+            <Setter Property="Background" Value="Yellow" />
+        </Style>
+        <LinearGradientBrush x:Key="boxArtGradient" StartPoint="0,0.8" EndPoint="1,0.25" MappingMode="RelativeToBoundingBox">
+            <GradientStop Color="#171a21" Offset="0.95"/>
+            <GradientStop Color="#314865" Offset="0.05"/>
+            <GradientStop Color="#486a95" />
+        </LinearGradientBrush>
+        <Style x:Key="boxArt" TargetType="ScrollViewer">
+            <Setter Property="Background" Value="{StaticResource boxArtGradient}" />
+            <Setter Property="BorderBrush" Value="Red" />
+            <Setter Property="BorderThickness" Value="50px" />
+        </Style>
+        <Style x:Key="fullGameList" TargetType="ScrollViewer">
+            <Setter Property="Background" Value="#314865" />
+            <Setter Property="BorderBrush" Value="Red" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Name="windowMain">
         <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="25*"/>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="25*" />
         </Grid.RowDefinitions>
-        <TextBlock x:Name="menuHeader" Text="This is eventually gonna be a menu bar" Grid.Column="0" Grid.Row="0"></TextBlock>
-        <ScrollViewer x:Name="smallerBoxInstalled" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" Grid.Column="0" Grid.Row="1"></ScrollViewer>
-        <ScrollViewer x:Name="biggerBoxInstalled" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" Grid.Column="1" Grid.Row="1">
-        </ScrollViewer>
+        <StackPanel x:Name="menuHeader" Grid.Row="0" Style="{StaticResource mainMenuHeader}" Orientation="Horizontal">
+            <!--<Button x:Name="settingsHeaderButton" Click="settingsButtonClick">Settings</Button>-->
+            <MenuItem x:Name="settingsHeaderMenu" Click="settingsMenuClick" Style="{StaticResource settingsMenu}">
+                <MenuItem.Header>
+                    <TextBlock>Menu</TextBlock>
+                </MenuItem.Header>
+                <MenuItem.ContextMenu>
+                    <ContextMenu>
+                        <Button Click="settingsButtonClick" Tag="claude">Claude</Button>
+                        <Button Click="settingsButtonClick" Tag="steam">Steam</Button>
+                        <Button Click="settingsButtonClick" Tag="origin">Origin</Button>
+                        <Button Click="settingsButtonClick" Tag="battle.Net">Battle.Net</Button>
+                        <Button Click="settingsButtonClick" Tag="other">Other Games</Button>
+                        <Button Click="settingsButtonClick" Tag="donate">Donate</Button>
+                    </ContextMenu> 
+                </MenuItem.ContextMenu>
+            </MenuItem>
+        </StackPanel>
+        <Grid Name="contentMain" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="5*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <ScrollViewer x:Name="leftHandMenu" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden" Grid.Column="0" Grid.Row="1" Style="{StaticResource fullGameList}">
+            </ScrollViewer>
+            <ScrollViewer x:Name="biggerBoxInstalled" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="1" Style="{StaticResource boxArt}">
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Window>

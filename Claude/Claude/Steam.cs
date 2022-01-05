@@ -10,29 +10,50 @@ using System.Linq;
 using System.Text;
 using IdentityModel.OidcClient;
 using System.Threading.Tasks;
+using System.Net;
 
 public class Steam
 {
     private static readonly string baseLocation = "C:\\Program Files (x86)\\Steam";
-	public static async Task<List<string>> InstalledAsync()
+	public static async Task<List<Computer.Game>> InstalledAsync()
     {
         string installList = baseLocation + "\\steamapps\\libraryfolders.vdf";
         VProperty rawFolders = VdfConvert.Deserialize(File.ReadAllText(installList));
         JToken libraryFolders = rawFolders.ToJson().Last;
 
-        List<string> appList = new List<string>();
+        List<Computer.Game> appList = new List<Computer.Game>();
         int counter = 0;
         for (int s = 0; s < (libraryFolders.Count() - 1); s++)
         {
             try
             {
+                var path = libraryFolders[s.ToString()]["path"];
                 var temp = libraryFolders[s.ToString()]["apps"];
                 foreach (var g in temp)
                 {
+                    Computer.Game currentGame = new Computer.Game();
+                    currentGame.Launcher = "steam";
+                    currentGame.Path = path.ToString();
+
                     string[] bits = g.ToString().Split(":");
-                    appList.Add(bits[0].Replace("\"", ""));
+                    string currentID = bits[0].Replace("\"", "");
+                    currentGame.Id = currentID;
+
+                    Computer.TempDownload($"https://store.steampowered.com/api/appdetails?appids={currentID}", $"steamapps/{currentID}.json");
+                    try
+                    {
+                        Uri test = new Uri($"{Directory.GetCurrentDirectory()}/cache/steamapps/{currentID}.json");
+                        string gameFile = File.ReadAllText($"{Directory.GetCurrentDirectory()}/cache/steamapps/{currentID}.json");
+                        int wdf = 15;
+                        dynamic parsedGame = JObject.Parse(gameFile);
+                        int gfds = 234;
+                        currentGame.Title = parsedGame[currentID]["data"]["name"];
+                    }
+                    catch (Exception) { currentGame.Title = $"Steam Utility - {currentID}"; }
 
                     Computer.TempDownload($"https://cdn.akamai.steamstatic.com/steam/apps/{bits[0].Replace("\"", "")}/header.jpg", bits[0].Replace("\"", "") + ".jpg");
+
+                    appList.Add(currentGame);
                 }
 
                 counter++;
@@ -41,6 +62,26 @@ public class Steam
         };
 
         return appList;
+    }
+
+    public static List<String> InstallLocs()
+    {
+        string installList = baseLocation + "\\steamapps\\libraryfolders.vdf";
+        VProperty rawFolders = VdfConvert.Deserialize(File.ReadAllText(installList));
+        JToken libraryFolders = rawFolders.ToJson().Last;
+
+        List<String> paths = new List<string>();
+        for (int x = 0; x <= 1; x++)
+        {
+            paths.Add(libraryFolders[x.ToString()]["path"].ToString());
+        }
+
+        return paths;
+    }
+
+    public static void Launch(string gameID)
+    {
+        Computer.Terminal($"start steam://rungameid/{gameID}");
     }
 
     public static async Task AuthenticateAsync()
