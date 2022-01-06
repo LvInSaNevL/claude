@@ -31,29 +31,32 @@ public class Steam
                 var temp = libraryFolders[s.ToString()]["apps"];
                 foreach (var g in temp)
                 {
-                    Computer.Game currentGame = new Computer.Game();
-                    currentGame.Launcher = "steam";
-                    currentGame.Path = path.ToString();
-
                     string[] bits = g.ToString().Split(":");
                     string currentID = bits[0].Replace("\"", "");
-                    currentGame.Id = currentID;
 
-                    Computer.TempDownload($"https://store.steampowered.com/api/appdetails?appids={currentID}", $"steamapps/{currentID}.json");
-                    try
+                    if (!Banned(currentID))
                     {
-                        Uri test = new Uri($"{Directory.GetCurrentDirectory()}/cache/steamapps/{currentID}.json");
-                        string gameFile = File.ReadAllText($"{Directory.GetCurrentDirectory()}/cache/steamapps/{currentID}.json");
-                        int wdf = 15;
-                        dynamic parsedGame = JObject.Parse(gameFile);
-                        int gfds = 234;
-                        currentGame.Title = parsedGame[currentID]["data"]["name"];
+                        Computer.Game currentGame = new Computer.Game();
+                        currentGame.Launcher = "steam";
+                        currentGame.Path = path.ToString();
+                        currentGame.Id = currentID;
+
+                        Computer.TempDownload($"https://store.steampowered.com/api/appdetails?appids={currentID}", $"steamapps/{currentID}.json");
+                        try
+                        {
+                            Uri test = new Uri($"{Directory.GetCurrentDirectory()}/cache/steamapps/{currentID}.json");
+                            string gameFile = File.ReadAllText($"{Directory.GetCurrentDirectory()}/cache/steamapps/{currentID}.json");
+                            int wdf = 15;
+                            dynamic parsedGame = JObject.Parse(gameFile);
+                            int gfds = 234;
+                            currentGame.Title = parsedGame[currentID]["data"]["name"];
+                        }
+                        catch (Exception) { currentGame.Title = $"Steam Utility - {currentID}"; }
+
+                        Computer.TempDownload($"https://cdn.akamai.steamstatic.com/steam/apps/{bits[0].Replace("\"", "")}/header.jpg", bits[0].Replace("\"", "") + ".jpg");
+
+                        appList.Add(currentGame);
                     }
-                    catch (Exception) { currentGame.Title = $"Steam Utility - {currentID}"; }
-
-                    Computer.TempDownload($"https://cdn.akamai.steamstatic.com/steam/apps/{bits[0].Replace("\"", "")}/header.jpg", bits[0].Replace("\"", "") + ".jpg");
-
-                    appList.Add(currentGame);
                 }
 
                 counter++;
@@ -82,6 +85,13 @@ public class Steam
     public static void Launch(string gameID)
     {
         Computer.Terminal($"start steam://rungameid/{gameID}");
+    }
+
+    private static bool Banned(string id)
+    {
+        string[] blacklist = new string[] { "228980", "250820" };
+
+        return Array.Exists(blacklist, x => x == id);
     }
 
     public static async Task AuthenticateAsync()

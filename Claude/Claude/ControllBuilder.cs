@@ -26,12 +26,12 @@ public class ControlBuilder
 	{
         Button gameButton = new Button
         {
-            Content = mouseover,
+            Content = tag,
             Tag = tag,
             Background = (SolidColorBrush)new BrushConverter().ConvertFrom(LauncherColor(launcher)),
             Height = 160,
             Width = 345,
-            ToolTip = tag,
+            ToolTip = BigBoyLetters(mouseover)
         };
 
         Image gameArt = new Image { Source = picture };
@@ -47,4 +47,15 @@ public class ControlBuilder
         gameButton.Content = gameArt;
         return gameButton;
     }
+
+    private static string BigBoyLetters(string input)
+    {
+        return input switch
+        {
+            null => throw new ArgumentNullException(nameof(input)),
+            "" => throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input)),
+            _ => string.Concat(input[0].ToString().ToUpper(), input.AsSpan(1))
+        };
+    }
+    
 }

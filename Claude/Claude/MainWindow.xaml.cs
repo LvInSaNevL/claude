@@ -43,6 +43,9 @@ namespace Claude
         {
             List<Computer.Game> steamGames = Steam.InstalledAsync().Result;
 
+            StackPanel gameRows = new StackPanel();
+            gameRows.Orientation = Orientation.Vertical;
+
             Grid gameGrid = new Grid();
             int gridWidth = (int)biggerBoxInstalled.ActualWidth / 345;
             int gridHeight = steamGames.Count / gridWidth;
@@ -82,7 +85,7 @@ namespace Claude
                     try { target = new BitmapImage(new Uri(Computer.CachePath($"{nowgame.Id}.jpg"))); }
                     catch { target = new BitmapImage(new Uri(@"pack://application:,,,/Resources/SteamHolder.jpg", UriKind.Absolute)); }
 
-                    Button gameButton = ControlBuilder.BoxArtButton(nowgame.Title, nowgame.Id, target, nowgame.Launcher);
+                    Button gameButton = ControlBuilder.BoxArtButton(nowgame.Launcher, nowgame.Id, target, nowgame.Launcher);
                     gameButton.Click += GameButtonClick;
                     Grid.SetColumn(gameButton, y);
                     Grid.SetRow(gameButton, x);
