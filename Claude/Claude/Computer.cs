@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Collections.Generic;
+using System.Windows.Controls;
 
 public class Computer
 {
@@ -42,5 +43,6 @@ public class Computer
         public string Title { get; set; }
         public string Launcher { get; set; }
         public string Path { get; set; }
+        public StackPanel detailFrame { get; set; }
     }
 }

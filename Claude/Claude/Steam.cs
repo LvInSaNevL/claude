@@ -46,10 +46,8 @@ public class Steam
                         {
                             Uri test = new Uri($"{Directory.GetCurrentDirectory()}/cache/steamapps/{currentID}.json");
                             string gameFile = File.ReadAllText($"{Directory.GetCurrentDirectory()}/cache/steamapps/{currentID}.json");
-                            int wdf = 15;
-                            dynamic parsedGame = JObject.Parse(gameFile);
-                            int gfds = 234;
-                            currentGame.Title = parsedGame[currentID]["data"]["name"];
+                            dynamic parsedGame = Details(currentID);
+                            currentGame.Title = parsedGame["name"];
                         }
                         catch (Exception) { currentGame.Title = $"Steam Utility - {currentID}"; }
 
@@ -65,6 +63,15 @@ public class Steam
         };
 
         return appList;
+    }
+
+    public static dynamic Details(string id)
+    {
+        Uri test = new Uri($"{Directory.GetCurrentDirectory()}/cache/steamapps/{id}.json");
+        string gameFile = File.ReadAllText($"{Directory.GetCurrentDirectory()}/cache/steamapps/{id}.json");
+        dynamic parsedGame = JObject.Parse(gameFile);
+
+        return parsedGame[id]["data"];
     }
 
     public static List<String> InstallLocs()
@@ -84,7 +91,7 @@ public class Steam
 
     public static void Launch(string gameID)
     {
-        Computer.Terminal($"start steam://rungameid/{gameID}");
+        Computer.Terminal($"echo \"Launching {gameID} on Steam!\" && start steam://rungameid/{gameID}");
     }
 
     private static bool Banned(string id)

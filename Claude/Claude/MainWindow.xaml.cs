@@ -1,21 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Diagnostics;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using IdentityModel.OidcClient;
-using System.IO;
 
 namespace Claude
 {
@@ -43,26 +30,10 @@ namespace Claude
         {
             List<Computer.Game> steamGames = Steam.InstalledAsync().Result;
 
-            StackPanel gameRows = new StackPanel();
-            gameRows.Orientation = Orientation.Vertical;
+            StackPanel boxArtStack = new StackPanel() { Orientation = Orientation.Vertical, Name="boxArtStack" };
 
-            Grid gameGrid = new Grid();
             int gridWidth = (int)biggerBoxInstalled.ActualWidth / 345;
             int gridHeight = steamGames.Count / gridWidth;
-
-            RowDefinition[] rows = new RowDefinition[gridHeight];
-            ColumnDefinition[] columns = new ColumnDefinition[gridWidth];
-
-            for (int i = 0; i < gridHeight; i++)
-            {
-                rows[i] = new RowDefinition();
-                gameGrid.RowDefinitions.Add(rows[i]);
-            }
-            for (int i = 0; i < gridWidth; i++)
-            {
-                columns[i] = new ColumnDefinition();
-                gameGrid.ColumnDefinitions.Add(columns[i]);
-            }
 
             Expander steamLibrary = new Expander
             {
@@ -75,6 +46,26 @@ namespace Claude
             int counter = 0;
             for (int x = 0; x < gridHeight; x++)
             {
+                // Setting up this row
+                StackPanel fullCurrentRow = new StackPanel() { Orientation = Orientation.Vertical };
+                StackPanel details = new StackPanel() 
+                {
+                    Visibility = Visibility.Collapsed,
+                    Name = $"detailStack{x}",
+                    Focusable = true
+                };
+                detailMenus.Add(details);
+                Grid currentRow = new Grid() { Margin = new Thickness { Top = 10, Right = 0, Bottom = 10, Left = 0 } };
+                currentRow.RowDefinitions.Add(new RowDefinition());
+                ColumnDefinition[] columns = new ColumnDefinition[gridWidth];
+
+
+                for (int i = 0; i < gridWidth; i++)
+                {
+                    columns[i] = new ColumnDefinition();
+                    currentRow.ColumnDefinitions.Add(columns[i]);
+                }
+
                 for (int y = 0; y < gridWidth; y++)
                 {
                     counter++;
@@ -85,47 +76,71 @@ namespace Claude
                     try { target = new BitmapImage(new Uri(Computer.CachePath($"{nowgame.Id}.jpg"))); }
                     catch { target = new BitmapImage(new Uri(@"pack://application:,,,/Resources/SteamHolder.jpg", UriKind.Absolute)); }
 
-                    Button gameButton = ControlBuilder.BoxArtButton(nowgame.Launcher, nowgame.Id, target, nowgame.Launcher);
+                    nowgame.detailFrame = details;
+                    Button gameButton = ControlBuilder.BoxArtButton(nowgame, target);
                     gameButton.Click += GameButtonClick;
                     Grid.SetColumn(gameButton, y);
-                    Grid.SetRow(gameButton, x);
 
-                    gameGrid.Children.Add(gameButton);
+                    currentRow.Children.Add(gameButton);
 
                     // Adding text to small box art
                     Button gameText = new Button
                     {
-                        Tag = nowgame.Id,
+                        Tag = nowgame,
                         Content = nowgame.Title,
                         Height = 50
                     };
                     gameText.Click += GameButtonClick;
                     textStack.Children.Add(gameText);
                 }
-            };
 
+                fullCurrentRow.Children.Add(currentRow);
+                fullCurrentRow.Children.Add(details);
+                boxArtStack.Children.Add(fullCurrentRow);
+            }
+           
             steamLibrary.Content = textStack;
             leftHandMenu.Content = steamLibrary;
-            biggerBoxInstalled.Content = gameGrid;
+            biggerBoxInstalled.Content = boxArtStack;
         }
 
 
         /// <summary>
         /// Start button handlers 
         /// </summary>
-        
-
+        private List<StackPanel> detailMenus = new List<StackPanel>();
         public void GameButtonClick(object sender, RoutedEventArgs e)
         {
-            var button = sender as Button;
-            Steam.Launch(button.Tag.ToString());
+            // Cleaning up old menus
+            foreach (StackPanel menu in detailMenus)
+            {
+                menu.Children.Clear();
+                menu.Visibility = Visibility.Hidden;
+            }
+
+            Computer.Game button = (Computer.Game)(sender as Button).Tag;
+            StackPanel details = button.detailFrame;
+
+            details.Children.Add(ControlBuilder.gameDetails(button, (biggerBoxInstalled.ActualWidth, biggerBoxInstalled.ActualHeight)));
+            details.Visibility = Visibility.Visible;
+            details.BringIntoView();
         }
-        
+
+        public static void LauncherButton(object sender, RoutedEventArgs e) { Steam.Launch((sender as Button).Tag.ToString()); } 
+
+        public static void GameDetailThumbnailSwitcher(object sender, RoutedEventArgs e)
+        {
+            Button caller = sender as Button;
+            //object[] callerInfo = caller.Tag;
+            Image newThumb = ControlBuilder.DetailsBigThumbnail((sender as Button).Tag);
+        }
+
         public void settingsButtonClick(object sender, RoutedEventArgs e)
         {
             var item = sender as Button;
             ClaudeSettings settings = new ClaudeSettings(item.Tag.ToString());
             settings.Show();
+            settings.Focus();
         }
 
         public void settingsMenuClick(object sender, RoutedEventArgs e)
