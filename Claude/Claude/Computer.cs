@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Net;
-using System.Collections.Generic;
 using System.Windows.Controls;
 
 public class Computer
@@ -20,7 +19,7 @@ public class Computer
 
     public static string CachePath(string target) { return $"{cache}/{target}"; }
 
-	public static void Terminal(string command)
+    public static void Terminal(string command)
     {
         Process process = new Process();
         ProcessStartInfo startInfo = new ProcessStartInfo();

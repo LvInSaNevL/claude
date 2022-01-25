@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace Claude
@@ -30,7 +31,7 @@ namespace Claude
         {
             List<Computer.Game> steamGames = Steam.InstalledAsync().Result;
 
-            StackPanel boxArtStack = new StackPanel() { Orientation = Orientation.Vertical, Name="boxArtStack" };
+            StackPanel boxArtStack = new StackPanel() { Orientation = Orientation.Vertical, Name = "boxArtStack" };
 
             int gridWidth = (int)biggerBoxInstalled.ActualWidth / 345;
             int gridHeight = steamGames.Count / gridWidth;
@@ -48,7 +49,7 @@ namespace Claude
             {
                 // Setting up this row
                 StackPanel fullCurrentRow = new StackPanel() { Orientation = Orientation.Vertical };
-                StackPanel details = new StackPanel() 
+                StackPanel details = new StackPanel()
                 {
                     Visibility = Visibility.Collapsed,
                     Name = $"detailStack{x}",
@@ -88,7 +89,7 @@ namespace Claude
                     {
                         Tag = nowgame,
                         Content = nowgame.Title,
-                        Height = 50
+                        Height = 50,
                     };
                     gameText.Click += GameButtonClick;
                     textStack.Children.Add(gameText);
@@ -98,7 +99,7 @@ namespace Claude
                 fullCurrentRow.Children.Add(details);
                 boxArtStack.Children.Add(fullCurrentRow);
             }
-           
+
             steamLibrary.Content = textStack;
             leftHandMenu.Content = steamLibrary;
             biggerBoxInstalled.Content = boxArtStack;
@@ -126,13 +127,37 @@ namespace Claude
             details.BringIntoView();
         }
 
-        public static void LauncherButton(object sender, RoutedEventArgs e) { Steam.Launch((sender as Button).Tag.ToString()); } 
+        public static void LauncherButton(object sender, RoutedEventArgs e) { Steam.Launch((sender as Button).Tag.ToString()); }
 
         public static void GameDetailThumbnailSwitcher(object sender, RoutedEventArgs e)
         {
             Button caller = sender as Button;
-            //object[] callerInfo = caller.Tag;
-            Image newThumb = ControlBuilder.DetailsBigThumbnail((sender as Button).Tag);
+
+            StackPanel thumbParent = FindBigThumbnail(caller);
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(thumbParent); i++)
+            {
+                var element = VisualTreeHelper.GetChild(thumbParent, i);
+                if (element.GetType() == typeof(Image))
+                {
+                    Image parsed = (Image)element;
+                    parsed.Source = new BitmapImage(new Uri(caller.Tag.ToString()));
+                }
+            }
+        }
+
+        private static StackPanel FindBigThumbnail(DependencyObject starter)
+        {
+            if (starter == null) { return null; }
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(starter); i++)
+            {
+                var element = VisualTreeHelper.GetChild(starter, i);
+                if (element.GetType() == typeof(StackPanel))
+                {
+                    StackPanel castedElement = (StackPanel)element;
+                    if (castedElement.Name == "leftDetails") { return castedElement; }
+                }
+            }
+            return FindBigThumbnail(VisualTreeHelper.GetParent(starter));
         }
 
         public void settingsButtonClick(object sender, RoutedEventArgs e)
@@ -152,6 +177,6 @@ namespace Claude
             }
         }
 
-        private async void steamAuthRoute(object sender, RoutedEventArgs e) { await Steam.AuthenticateAsync(); }
+        private void steamAuthRoute(object sender, RoutedEventArgs e) { Console.Write("This was supposed to do something lol"); }
     }
 }

@@ -1,21 +1,18 @@
-﻿using System.IO;
-using Gameloop.Vdf;
+﻿using Gameloop.Vdf;
 using Gameloop.Vdf.JsonConverter;
+using Gameloop.Vdf.Linq;
+using IdentityModel.OidcClient;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using Gameloop.Vdf.Linq;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
+using System.IO;
 using System.Linq;
-using System.Text;
-using IdentityModel.OidcClient;
 using System.Threading.Tasks;
-using System.Net;
 
 public class Steam
 {
     private static readonly string baseLocation = "C:\\Program Files (x86)\\Steam";
-	public static async Task<List<Computer.Game>> InstalledAsync()
+    public static async Task<List<Computer.Game>> InstalledAsync()
     {
         string installList = baseLocation + "\\steamapps\\libraryfolders.vdf";
         VProperty rawFolders = VdfConvert.Deserialize(File.ReadAllText(installList));
@@ -100,20 +97,4 @@ public class Steam
 
         return Array.Exists(blacklist, x => x == id);
     }
-
-    public static async Task AuthenticateAsync()
-    {
-        var options = new OidcClientOptions
-        {
-            Authority = "https://demo.identityserver.io",
-            ClientId = "native.hybrid",
-            Scope = "openid profile api offline_access",
-            RedirectUri = "io.identityserver.demo.uwp://callback"
-        };
-        var client = new OidcClient(options);
-
-        var state = await client.PrepareLoginAsync();
-
-        Computer.Terminal(state.ToString());
-    }  
 }

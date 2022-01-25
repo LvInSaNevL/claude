@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -26,7 +25,7 @@ public class ControlBuilder
     }
 
     public static Button BoxArtButton(Computer.Game game, BitmapImage picture)
-	{
+    {
         Button gameButton = new Button
         {
             Content = game.Id,
@@ -41,8 +40,8 @@ public class ControlBuilder
         var buttonStyle = new Style
         {
             TargetType = typeof(Border),
-            Setters = {new Setter { Property = Border.CornerRadiusProperty, Value = new CornerRadius(15)} }
-            
+            Setters = { new Setter { Property = Border.CornerRadiusProperty, Value = new CornerRadius(15) } }
+
         };
         gameArt.Resources.Add(buttonStyle.TargetType, buttonStyle);
         gameButton.Resources.Add(buttonStyle.TargetType, buttonStyle);
@@ -65,7 +64,7 @@ public class ControlBuilder
     {
         JObject gameInfo = Steam.Details(game.Id);
 
-        Grid fullDetails = new Grid();
+        Grid fullDetails = new Grid() { Name = "fullDetails" };
         ColumnDefinition c1 = new ColumnDefinition();
         c1.Width = new GridLength(60, GridUnitType.Star);
         ColumnDefinition c2 = new ColumnDefinition();
@@ -74,6 +73,7 @@ public class ControlBuilder
         fullDetails.ColumnDefinitions.Add(c2);
         StackPanel leftDetails = new StackPanel()
         {
+            Name = "leftDetails",
             Orientation = Orientation.Vertical,
             Background = Brushes.Red,
             Width = dimensions.width * 0.6,
@@ -82,6 +82,7 @@ public class ControlBuilder
         Grid.SetColumn(leftDetails, 0);
         StackPanel rightDetails = new StackPanel()
         {
+            Name = "rightDetails",
             Orientation = Orientation.Vertical,
             Background = Brushes.Green,
             Width = dimensions.width * 0.4,
@@ -133,26 +134,25 @@ public class ControlBuilder
             screenshots.Add(bundle);
         }
 
-        BitmapImage thumbnail = new BitmapImage();
-        try { thumbnail = new BitmapImage(new Uri(screenshots[0]["path_full"].ToString())); }
-        catch { thumbnail = new BitmapImage(new Uri(@"pack://application:,,,/Resources/SteamHolder.jpg", UriKind.Absolute)); }
         Image bigThumbnail = new Image()
         {
             MaxHeight = (dimensions.height - 250) * 0.60,
-            Source = thumbnail,
+            Source = DetailsBigThumbnail(screenshots[0]["path_full"].ToString()),
             Margin = new Thickness(12)
         };
+        bigThumbnail.Name = "DetailsBigThumbnail";
         leftDetails.Children.Add(bigThumbnail);
-
 
         ScrollViewer thumbScroller = new ScrollViewer()
         {
+            Name = "thumbScroller",
             VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Visible,
             MaxWidth = dimensions.width * 0.58
         };
         StackPanel thumbStack = new StackPanel()
         {
+            Name = "thumbStack",
             Orientation = Orientation.Horizontal,
             MaxHeight = dimensions.height * 0.10
         };
@@ -170,7 +170,8 @@ public class ControlBuilder
             Button littleButton = new Button()
             {
                 Content = littleThumbnail,
-                Tag = new object[2] { screenshots[i]["path_full"].ToString(), dimensions.height }
+                Tag = screenshots[i]["path_full"].ToString()
+                
             };
             littleButton.Click += MainWindow.GameDetailThumbnailSwitcher;
 
@@ -194,14 +195,15 @@ public class ControlBuilder
 
         return fullDetails;
     }
-
-    public static Image DetailsBigThumbnail(object target)
+    //margin 12
+    public static BitmapImage DetailsBigThumbnail(string target)
     {
-        return new Image()
-        {
-             ///MaxHeight = (Convert.ToInt32(target[1]) - 250) * 0.60,
-           // Source = new BitmapImage(new Uri(target[0].ToString())),
-            Margin = new Thickness(12)
-        };
+        MainWindow window = Application.Current.MainWindow as MainWindow;
+        double width = window.biggerBoxInstalled.ActualWidth;
+        double height = window.biggerBoxInstalled.ActualHeight;
+
+        BitmapImage image = new BitmapImage(new Uri(target));
+
+        return image;
     }
 }
