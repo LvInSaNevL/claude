@@ -28,7 +28,7 @@ namespace Claude
             exeStack.Children.Add(exeLocText);
             Button exeLocButton = new Button { 
                 Content = "Change",
-                Tag = exeLocText
+                Tag = (exeLocText, "steam.exe")
             };
             exeLocButton.Click += ClaudeSettings.ChangePathClick;
             exeStack.Children.Add(exeLocButton);
@@ -61,6 +61,19 @@ namespace Claude
             TextBlock text = new TextBlock();
             text.Text = "[-- Battle.Net Settings --]";
             stack.Children.Add(text);
+
+            StackPanel exeStack = new StackPanel() { Orientation = Orientation.Horizontal, Margin = new System.Windows.Thickness(0, 0, 0, 15) };
+
+            TextBlock exeLocText = new TextBlock { Text = Computer.FindUserData(Computer.ReadUserData(), "battlenet.exe") };
+            exeStack.Children.Add(exeLocText);
+            Button exeLocButton = new Button
+            {
+                Content = "Change",
+                Tag = (exeLocText, "battlenet.exe")
+            };
+            exeLocButton.Click += ClaudeSettings.ChangePathClick;
+            exeStack.Children.Add(exeLocButton);
+            stack.Children.Add(exeStack);
 
             return stack;
         }

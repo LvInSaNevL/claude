@@ -57,7 +57,8 @@ namespace Claude
         public static void ChangePathClick(object sender, RoutedEventArgs e)
         {
             var item = sender as Button;
-            TextBlock text = (TextBlock)item.Tag;
+            (TextBlock, string) data = ((TextBlock, string))item.Tag;
+            TextBlock text = data.Item1;
 
             OpenFileDialog openFile = new OpenFileDialog()
             {
@@ -72,7 +73,7 @@ namespace Claude
             {
                 string filename = openFile.FileName;
                 dynamic userData = Computer.ReadUserData();
-                Computer.ChangeUserData("steam.exe", filename);
+                Computer.ChangeUserData(data.Item2, filename);
                 text.Text = filename;
             }
         }

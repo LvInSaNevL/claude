@@ -5,12 +5,25 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
     <Authors>Lv_InSaNe_vL</Authors>
+    <Description>Play any game, from any service, anytime</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/LvInSaNevL/claude</PackageProjectUrl>
+    <ApplicationIcon>Logo.ico</ApplicationIcon>
+    <PackageIcon></PackageIcon>
+    <PackageIconUrl />
+    <RepositoryUrl>https://github.com/LvInSaNevL/claude</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Logo\Logo.ico" />
+    <None Remove="Resources\Logo\Logo.png" />
+    <None Remove="Resources\Logo\Logo.png" />
     <None Remove="Resources\Splashscreen.png" />
     <None Remove="Resources\SteamHolder.jpg" />
-    <None Remove="Resources\UserData.json" />
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -25,15 +38,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\Logo\Logo.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\ResourceDictionary.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Resource>
     <Resource Include="Resources\SteamHolder.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <EmbeddedResource Include="Resources\UserData.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

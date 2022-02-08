@@ -131,6 +131,7 @@ namespace Claude
         }
 
         public static void LauncherButton(object sender, RoutedEventArgs e) { Steam.Launch((sender as Button).Tag.ToString()); }
+        void BattleNetLauncherButton(object sender, RoutedEventArgs e) { BattleNet.Launch((sender as Button).Tag.ToString()); }
 
         public static void GameDetailThumbnailSwitcher(object sender, RoutedEventArgs e)
         {
