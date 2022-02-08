@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Claude
 {
-    class BattleNet
+    public class BattleNet
     {
         static readonly Dictionary<string, string> Args = new Dictionary<string, string>()
         {
