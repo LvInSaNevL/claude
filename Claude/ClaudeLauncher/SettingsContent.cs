@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Controls;
-namespace Claude
+
+namespace ClaudeLauncher
 {
     class SettingsContent
     {

@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Claude
+namespace ClaudeLauncher
 {
     /// <summary>
     /// Interaction logic for Settings.xaml
@@ -12,7 +12,7 @@ namespace Claude
         public ClaudeSettings(string target)
         {
             InitializeComponent();
-            Window parentWindow = Window.GetWindow(this);
+            Window parentWindow = GetWindow(this);
             SettingsContentLoader(target);
         }
 
@@ -52,6 +52,10 @@ namespace Claude
         {
             var item = sender as Button;
             SettingsContentLoader(item.Tag.ToString());
+        }
+
+        public void InstallWizard(object sender, RoutedEventArgs e)
+        {
         }
 
         public static void ChangePathClick(object sender, RoutedEventArgs e)

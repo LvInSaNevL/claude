@@ -1,9 +1,9 @@
-﻿<Window x:Class="Claude.ClaudeSettings"
+﻿<Window x:Class="ClaudeLauncher.ClaudeSettings"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Claude"
+        xmlns:local="clr-namespace:ClaudeLauncher"
         mc:Ignorable="d"
         Title="Settings" Height="450" Width="800"
         Tag="I hope nobody sees this">
@@ -29,7 +29,7 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <StackPanel x:Name="settingsOptions" Grid.Row="1">
-                <Button x:Name="profileButton" Click="settingsButtonClick" Tag="claude">Claude Profile</Button>
+                <Button x:Name="profileButton" Click="settingsButtonClick" Tag="ClaudeLauncher">Claude Profile</Button>
                 <Button x:Name="steamButton" Click="settingsButtonClick" Tag="steam">Steam</Button>
                 <Button x:Name="originButton" Click="settingsButtonClick" Tag="origin">Origin</Button>
                 <Button x:Name="battlenetButton" Click="settingsButtonClick" Tag="battlenet">Battle.Net</Button>

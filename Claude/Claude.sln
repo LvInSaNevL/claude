@@ -5,7 +5,12 @@ VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Claude", "Claude\Claude.csproj", "{0A7E6546-675A-443D-9CBE-EE8878F3C726}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClaudeLauncher", "ClaudeLauncher\ClaudeLauncher.csproj", "{D3C7D3E2-5935-4A17-AE3B-313EBD29051F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClaudeLauncher", "ClaudeLauncher\ClaudeLauncher.csproj", "{D3C7D3E2-5935-4A17-AE3B-313EBD29051F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B37C1CAA-7BAF-448E-93CF-3F3EFCBCE6F6} = {B37C1CAA-7BAF-448E-93CF-3F3EFCBCE6F6}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClaudeInstaller", "ClaudeInstaller\ClaudeInstaller.csproj", "{B37C1CAA-7BAF-448E-93CF-3F3EFCBCE6F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +26,10 @@ Global
 		{D3C7D3E2-5935-4A17-AE3B-313EBD29051F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D3C7D3E2-5935-4A17-AE3B-313EBD29051F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D3C7D3E2-5935-4A17-AE3B-313EBD29051F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B37C1CAA-7BAF-448E-93CF-3F3EFCBCE6F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B37C1CAA-7BAF-448E-93CF-3F3EFCBCE6F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B37C1CAA-7BAF-448E-93CF-3F3EFCBCE6F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B37C1CAA-7BAF-448E-93CF-3F3EFCBCE6F6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

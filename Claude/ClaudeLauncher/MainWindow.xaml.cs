@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace Claude
+namespace ClaudeLauncher
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
