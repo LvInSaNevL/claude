@@ -62,6 +62,12 @@ public class Steam
         return appList;
     }
 
+    public static string GetExe()
+    {
+        if (File.Exists($"{baseLocation}\\steam.exe")) { return $"{baseLocation}\\steam.exe"; }
+        else { return "File location not found"; }
+    }
+
     public static dynamic Details(string id)
     {
         Uri test = new Uri($"{Directory.GetCurrentDirectory()}/cache/steamapps/{id}.json");

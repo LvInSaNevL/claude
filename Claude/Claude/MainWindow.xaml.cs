@@ -29,12 +29,12 @@ namespace Claude
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            List<Computer.Game> steamGames = Steam.InstalledAsync().Result;
+            List<Computer.Game> installedGames = Computer.GetGames();
 
             StackPanel boxArtStack = new StackPanel() { Orientation = Orientation.Vertical, Name = "boxArtStack" };
 
             int gridWidth = (int)biggerBoxInstalled.ActualWidth / 345;
-            int gridHeight = steamGames.Count / gridWidth;
+            int gridHeight = installedGames.Count / gridWidth;
 
             Expander steamLibrary = new Expander
             {
@@ -70,7 +70,7 @@ namespace Claude
                 for (int y = 0; y < gridWidth; y++)
                 {
                     counter++;
-                    Computer.Game nowgame = steamGames[counter - 1];
+                    Computer.Game nowgame = installedGames[counter - 1];
 
                     // Adding button image to big box art
                     BitmapImage target = new BitmapImage();
@@ -80,6 +80,7 @@ namespace Claude
                     nowgame.detailFrame = details;
                     Button gameButton = ControlBuilder.BoxArtButton(nowgame, target);
                     gameButton.Click += GameButtonClick;
+                    gameButton.MouseDoubleClick += LauncherButton;
                     Grid.SetColumn(gameButton, y);
 
                     currentRow.Children.Add(gameButton);
@@ -87,11 +88,12 @@ namespace Claude
                     // Adding text to small box art
                     Button gameText = new Button
                     {
-                        Tag = nowgame,
+                        Tag = nowgame.Id,
                         Content = nowgame.Title,
                         Height = 50,
                     };
                     gameText.Click += GameButtonClick;
+                    gameText.MouseDoubleClick += LauncherButton;
                     textStack.Children.Add(gameText);
                 }
 
@@ -119,10 +121,11 @@ namespace Claude
                 menu.Visibility = Visibility.Hidden;
             }
 
+
             Computer.Game button = (Computer.Game)(sender as Button).Tag;
             StackPanel details = button.detailFrame;
 
-            details.Children.Add(ControlBuilder.gameDetails(button, (biggerBoxInstalled.ActualWidth, biggerBoxInstalled.ActualHeight)));
+            details.Children.Add(ControlBuilder.GameDetails(button, (biggerBoxInstalled.ActualWidth, biggerBoxInstalled.ActualHeight)));
             details.Visibility = Visibility.Visible;
             details.BringIntoView();
         }

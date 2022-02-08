@@ -5,7 +5,7 @@ namespace Claude
 {
     class SettingsContent
     {
-        public static StackPanel ClaudeSettings()
+        public static StackPanel Claude()
         {
             StackPanel stack = new StackPanel();
             TextBlock text = new TextBlock();
@@ -21,17 +21,28 @@ namespace Claude
             text.Text = "[-- Steam Settings --]";
             stack.Children.Add(text);
 
-            TextBlock exeLocText = new TextBlock();
+            StackPanel exeStack = new StackPanel() { Orientation = Orientation.Horizontal, Margin = new System.Windows.Thickness(0, 0, 0, 15) };
+            StackPanel gameStack = new StackPanel() { Orientation = Orientation.Vertical };
+                        
+            TextBlock exeLocText = new TextBlock { Text = Computer.FindUserData(Computer.ReadUserData(), "steam.exe") };
+            exeStack.Children.Add(exeLocText);
+            Button exeLocButton = new Button { 
+                Content = "Change",
+                Tag = exeLocText
+            };
+            exeLocButton.Click += ClaudeSettings.ChangePathClick;
+            exeStack.Children.Add(exeLocButton);
+            stack.Children.Add(exeStack);
 
+            gameStack.Children.Add(new TextBlock() { Text = "Game Directories" });
             List<String> installPaths = Steam.InstallLocs();
             int counter = 0;
             foreach (string path in installPaths)
             {
                 counter++;
-                TextBlock installText = new TextBlock();
-                installText.Text = $"{counter}: {path}";
-                stack.Children.Add(installText);
+                gameStack.Children.Add(new TextBlock() { Text = $"{counter}: {path}" } );
             }
+            stack.Children.Add(gameStack);
 
             return stack;
         }
@@ -48,7 +59,7 @@ namespace Claude
         {
             StackPanel stack = new StackPanel();
             TextBlock text = new TextBlock();
-            text.Text = "Battle.Net Settings";
+            text.Text = "[-- Battle.Net Settings --]";
             stack.Children.Add(text);
 
             return stack;

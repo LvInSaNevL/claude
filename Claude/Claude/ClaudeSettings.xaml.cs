@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Microsoft.Win32;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Claude
@@ -22,7 +23,7 @@ namespace Claude
             switch (target)
             {
                 case "claude":
-                    contentField.Children.Add(SettingsContent.ClaudeSettings());
+                    contentField.Children.Add(SettingsContent.Claude());
                     break;
                 case "steam":
                     contentField.Children.Add(SettingsContent.SteamSettings());
@@ -51,6 +52,29 @@ namespace Claude
         {
             var item = sender as Button;
             SettingsContentLoader(item.Tag.ToString());
+        }
+
+        public static void ChangePathClick(object sender, RoutedEventArgs e)
+        {
+            var item = sender as Button;
+            TextBlock text = (TextBlock)item.Tag;
+
+            OpenFileDialog openFile = new OpenFileDialog()
+            {
+                DefaultExt = ".exe",
+                InitialDirectory = "C:\\Program Files (x86)"
+            };
+            openFile.Filter = "Exe Files (.exe)|*.exe|All Files (*.*)|*.*";
+            openFile.FilterIndex = 1;
+            var result = openFile.ShowDialog();
+
+            if (result == true)
+            {
+                string filename = openFile.FileName;
+                dynamic userData = Computer.ReadUserData();
+                Computer.ChangeUserData("steam.exe", filename);
+                text.Text = filename;
+            }
         }
     }
 }

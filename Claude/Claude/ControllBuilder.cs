@@ -50,6 +50,39 @@ public class ControlBuilder
         return gameButton;
     }
 
+    public struct RGB
+    {
+        public int R { get; set; }
+        public int G { get; set; }
+        public int B { get; set; }
+    } 
+
+    public static Color BoxArtAverage(BitmapImage boxart)
+    {
+        RGB rgb = new RGB();
+
+        int width = (int)boxart.Width - 250;
+        int height = (int)boxart.Height - 250;
+
+        for (int x = 0; x < width; x += 100)
+        {
+            for (int y = 0; y < height; y += 100)
+            {
+                CroppedBitmap cb = new CroppedBitmap(boxart, new Int32Rect(x, y, 1, 1));
+                byte[] result = new byte[4];
+                cb.CopyPixels(result, 4, 0);
+                rgb.R = (rgb.R + result[1]) / 2;
+                rgb.G = (rgb.G + result[2]) / 2;
+                rgb.B = (rgb.B + result[3]) / 2;
+            }
+        }
+
+        return Color.FromRgb(
+            Convert.ToByte(rgb.R),
+            Convert.ToByte(rgb.G),
+            Convert.ToByte(rgb.B));
+    }
+
     private static string BigBoyLetters(string input)
     {
         return input switch
@@ -60,7 +93,7 @@ public class ControlBuilder
         };
     }
 
-    public static Grid gameDetails(Computer.Game game, (double width, double height) dimensions)
+    public static Grid GameDetails(Computer.Game game, (double width, double height) dimensions)
     {
         JObject gameInfo = Steam.Details(game.Id);
 
@@ -75,7 +108,6 @@ public class ControlBuilder
         {
             Name = "leftDetails",
             Orientation = Orientation.Vertical,
-            Background = Brushes.Red,
             Width = dimensions.width * 0.6,
             Height = dimensions.height - 250
         };
@@ -95,6 +127,11 @@ public class ControlBuilder
         try { headerPic.Source = new BitmapImage(new Uri(Computer.CachePath($"{game.Id}.jpg"))); }
         catch { headerPic.Source = new BitmapImage(new Uri(@"pack://application:,,,/Resources/SteamHolder.jpg", UriKind.Absolute)); }
         rightDetails.Children.Add(headerPic);
+
+        // Getting background colors
+        Color avRGB = BoxArtAverage((BitmapImage)headerPic.Source);
+        leftDetails.Background = new SolidColorBrush(avRGB);
+        rightDetails.Background = new SolidColorBrush(avRGB);
 
         rightDetails.Children.Add(new TextBlock()
         {
