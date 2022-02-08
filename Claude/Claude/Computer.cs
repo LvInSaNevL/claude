@@ -81,7 +81,7 @@ public class Computer
                 parsedData = JObject.Parse(resutl);
             }
         }
-        catch (System.IO.FileNotFoundException e) { return JObject.Parse("holder"); }
+        catch (System.IO.FileNotFoundException e) { return JObject.Parse("test"); }
 
         return parsedData;
     }
