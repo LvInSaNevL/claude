@@ -61,6 +61,11 @@ public class Computer
         return "true";
     }
 
+    public static Uri GetResource(string file)
+    {
+        return new Uri($"pack://application:,,,/Resources/{file}");
+    }
+
     public static dynamic ReadUserData()
     {
         dynamic parsedData;
@@ -68,11 +73,15 @@ public class Computer
         string fullPath = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
         fullPath = $"{fullPath}\\{maybePath.LocalPath}";
 
-        using (StreamReader reader = new StreamReader(fullPath))
+        try
         {
-            string resutl = reader.ReadToEnd().ToString();
-            parsedData = JObject.Parse(resutl);
+            using (StreamReader reader = new StreamReader(fullPath))
+            {
+                string resutl = reader.ReadToEnd().ToString();
+                parsedData = JObject.Parse(resutl);
+            }
         }
+        catch (System.IO.FileNotFoundException e) { return JObject.Parse("holder"); }
 
         return parsedData;
     }
