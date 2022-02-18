@@ -1,43 +1,83 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using TACTLib.Agent;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.IO;
 
-
-public class BattleNet
+namespace Claude
 {
-    static readonly Dictionary<string, string> Args = new Dictionary<string, string>()
+    public class BattleNet
     {
-        // Battle.Net commands
-        { "games", "--exec=\"focus play\""},
-        { "shop",  "--exec=\"focus shop\"" },
-        { "social", "--exec=\"focus socia\"" },
-        { "news", "--exec=\"focus news\"" },
-        { "friends", "--exec=\"dialog friends\"" },
-        { "settings", "--exec=\"dialog settings\"" },
-        // Blizzard Games
-        { "diablo3", "--exec=\"launch D3\"" },
-        { "diablo2", "--exec=\"launch d2r\"" },
-        { "hearthstone", "--exec=\"launch WTGG\"" },
-        { "heros of the storm", "--exec=\"launch Hero\"" },
-        { "overwatch", "--exec=\"launch Pro\"" },
-        { "starcraft", "--exec=\"launch S1\"" },
-        { "starcraft2", "--exec=\"launch S2\"" },
-        { "warcraft3", "--exec=\"launch W3\"" },
-        { "wow", "--exec=\"launch WoW\"" },
-        { "wow classic", "--exec=\"launch wow_classic\"" },
-        { "diablo3 public test", "--exec=\"launch d3t\"" },
-        { "heros of the store public test", "--exec=\"launch herot\"" },
-        { "wow public test", "--exec=\"launch wowt\"" },
-        { "crash4", "--exec=\"launch cb4\"" },
-        // Activision Games
-        { "cod bo4", "--exec=\"launch VIPR\"" },
-        { "cod mw", "--exec=\"launch ODIN\"" },
-        { "cod mw2cr", "--exec=\"launch LAZR\"" },
-        { "cod bocw", "--exec=\"launch ZEUS\"" }
-    };
+        static readonly Dictionary<string, string> LauncherArgs = new Dictionary<string, string>()
+        {
+            // Battle.Net commands
+            { "games", "--exec=\"focus play\""},
+            { "shop",  "--exec=\"focus shop\"" },
+            { "social", "--exec=\"focus socia\"" },
+            { "news", "--exec=\"focus news\"" },
+            { "friends", "--exec=\"dialog friends\"" },
+            { "settings", "--exec=\"dialog settings\"" }
+        };
+        // --exec="launch {key}
+        static readonly Dictionary<string, string> GameArgs = new Dictionary<string, string>()
+        {
+            // Blizzard Games
+            { "d3", "Diablo III" },
+            { "d2r", "Diablo II: Resurrected" },
+            { "wtgg", "Hearthstone" },
+            { "hero", "Heros of the Storm" },
+            { "pro", "Overwatch" },
+            { "s1", "StarCraft" },
+            { "s2", "StartCraft II" },
+            { "w3", "Warcraft III" },
+            { "wow", "World of Warcraft" },
+            { "wow_classic", "World of Warcraft Classic" },
+            { "d3t", "Diablo III: Public Test" },
+            { "herot", "Heros of teh Storm: Public Test" },
+            { "wowt", "World of Warcraft: Public Test" },
+            { "cb4", "Crash bandicoot 4" },
+            // Activision Games
+            { "vipr", "COD: Black Ops 4" },
+            { "odin", "COD: Modern Warfare" },
+            { "lazr", "COD: Modern Warfare 2 Campaign Remastered" },
+            { "zeus", "COD: Black Ops Cold War" }
+        };
 
-    public static void Launch(string target)
-    {
-        Computer.Terminal($"echo \"Launching {target} on Battle.Net!\" && \"C:\\Program Files (x86)\\Battle.net\\Battle.net\\Launcher.exe\" {Args[target]}");
+        public static List<Computer.Game> InstalledGames()
+        {
+            List<Computer.Game> games = new List<Computer.Game>();
+            dynamic userData = Computer.ReadUserData();
+            var userDirs = userData.SelectToken("BattleNet.install");
+
+            foreach (string dir in userDirs)
+            {
+                foreach (string gameDir in Directory.GetDirectories(dir))
+                {
+                    string path = $"{gameDir}\\.product.db";
+                    AgentDatabase handler = new AgentDatabase(path);
+                    var result = handler.Data.ToString();
+                    dynamic data = JObject.Parse(result);
+
+                    Computer.Game nowGame = new Computer.Game();
+                    nowGame.Id = data["productInstall"][0]["uid"];
+                    nowGame.Title = GameArgs[data["productInstall"][0]["productCode"].ToString()];
+                    nowGame.Launcher = "BattleNet";
+                    nowGame.Path = data["productInstall"][0]["settings"]["installPath"];
+
+                    games.Add(nowGame);
+                }
+            }
+
+
+            return games;
+        }
+
+        public static void Launch(string target)
+        {
+            string _ = Computer.Terminal($"echo \"Launching {target} on Battle.Net!\" && \"C:\\Program Files (x86)\\Battle.net\\Battle.net\\Launcher.exe\"");
+            _ = Computer.Terminal($"cd  \"C:\\Program Files (x86)\\Battle.net\\Battle.net\" && Launcher.exe --exec=\"launch {GameArgs[target]}\"");
+        }
     }
 }

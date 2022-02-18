@@ -8,130 +8,136 @@ using System.Windows.Controls;
 using System.Reflection;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Windows.Controls.Primitives;
+using Microsoft.CSharp.RuntimeBinder;
+using System.Windows.Media.Imaging;
 
-public class Computer
+namespace Claude
 {
-    public static readonly string cache = Directory.GetCurrentDirectory() + "/cache";
-    public static readonly string steamapps = Directory.GetCurrentDirectory() + "/cache/steamapps";
-
-    public static void TempDownload(string url, string filename)
+    public class Computer
     {
-        if (!File.Exists($"{cache}/{filename}"))
+        public static readonly string cache = Directory.GetCurrentDirectory() + "/cache";
+        public static readonly string steamapps = Directory.GetCurrentDirectory() + "/cache/steamapps";
+
+        public static void TempDownload(string url, string filename)
         {
-            using WebClient client = new WebClient(); client.DownloadFile(new Uri(url), $"{cache}/{filename}");
-        }
-    }
-
-    public static string CachePath(string target) { return $"{cache}/{target}"; }
-
-    public static void Terminal(string command)
-    {
-        Process process = new Process();
-        ProcessStartInfo startInfo = new ProcessStartInfo();
-        startInfo.FileName = "cmd.exe";
-        startInfo.Arguments = "/C start " + command;
-
-        process.StartInfo = startInfo;
-        process.Start();
-    }
-
-    public static void Initialize()
-    {
-        Directory.CreateDirectory(cache);
-        Directory.CreateDirectory(steamapps);
-    }
-
-    public static string ChangeUserData(string target, string newVal)
-    {
-        dynamic parsedData = ReadUserData();
-        string[] splitTarget = newVal.Split(".");
-
-        Uri maybePath = new Uri("pack://application:,,,/Resources/UserData.json");
-        string fullPath = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
-        fullPath = $"{fullPath}\\{maybePath.LocalPath}";
-
-        JToken token = parsedData.SelectToken(target);
-        token.Replace(newVal);
-        using (StreamWriter writer = File.CreateText(fullPath))
-        {
-            string stringData = JsonConvert.SerializeObject(parsedData);
-            writer.WriteLine(stringData);
-        }
-
-        return "true";
-    }
-
-    public static Uri GetResource(string file)
-    {
-        return new Uri($"pack://application:,,,/Resources/{file}");
-    }
-
-    public static dynamic ReadUserData()
-    {
-        dynamic parsedData;
-        Uri maybePath = new Uri("pack://application:,,,/Resources/UserData.json");
-        string fullPath = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
-        fullPath = $"{fullPath}\\{maybePath.LocalPath}";
-
-        try
-        {
-            using (StreamReader reader = new StreamReader(fullPath))
+            if (!File.Exists($"{cache}/{filename}"))
             {
-                string resutl = reader.ReadToEnd().ToString();
-                parsedData = JObject.Parse(resutl);
+                using WebClient client = new WebClient(); client.DownloadFile(new Uri(url), $"{cache}/{filename}");
             }
         }
-        catch (System.IO.FileNotFoundException e) { return JObject.Parse("test"); }
 
-        return parsedData;
-    }
+        public static string CachePath(string target) { return $"{cache}/{target}"; }
 
-    public static dynamic FindUserData(dynamic data, string key)
-    {
-        string[] keys = key.Split(".");        
-        string firstKey = keys[0];
-
-        if (keys.Length == 1)
-            return data[key];
-        else
+        public static string Terminal(string command)
         {
-            string[] newKeys = new string[keys.Length - 1];
-            Array.Copy(keys, 1, newKeys, 0, (keys.Length - 1));
-            string returnVal = string.Join(".", newKeys);
-            return FindUserData(data[firstKey], returnVal);
+            Process process = new Process();
+            ProcessStartInfo startInfo = new ProcessStartInfo();
+            startInfo.Arguments = command;
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
+            process.StartInfo = startInfo;
+            process.Start();
+            process.WaitForExit();
+            return process.StandardOutput.ReadToEnd().ToString();
+        }
+
+        public static void Initialize()
+        {
+            Directory.CreateDirectory(cache);
+            Directory.CreateDirectory(steamapps);
+
+            try { dynamic dynamic = ReadUserData(); }
+            catch (Exception e)
+            { 
+                Installer wizard = new Installer();
+                wizard.Show();
+                return;
+            }
+
+            MainWindow main = new MainWindow();
+            main.Show();
+        }
+
+        public static void ShutDown()
+        {
+            System.Windows.Application.Current.Shutdown();
+        }
+
+        public static string ChangeUserData(string target, string newVal)
+        {
+            string[] splitTarget = newVal.Split(".");
+            dynamic data = ReadUserData();
+
+            Uri maybePath = new Uri("pack://application:,,,/Resources/UserData.json");
+            string fullPath = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+            fullPath = $"{fullPath}\\{maybePath.LocalPath}";
+
+            JToken token = data.SelectToken(target);
+            token.Replace(newVal);
+            using (StreamWriter writer = File.CreateText(fullPath))
+            {
+                string stringData = JsonConvert.SerializeObject(data);
+                writer.WriteLine(stringData);
+            }
+
+            return "true";
+        }
+
+        public static dynamic ReadUserData()
+        {
+            dynamic parsedData;
+            Uri maybePath = new Uri("pack://application:,,,/Resources/UserData.json");
+            string fullPath = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+            fullPath = $"{fullPath}\\{maybePath.LocalPath}";
+
+            try
+            {
+                using StreamReader reader = new StreamReader(fullPath);
+                string resutl = reader.ReadToEnd().ToString();
+                if (resutl == null) { return new NullReferenceException(); }
+                else
+                {
+                    parsedData = JObject.Parse(resutl);
+                }
+            }
+            catch (FileNotFoundException e) { throw new FileNotFoundException(); }
+
+            return parsedData;
+        }
+
+        public static List<Game> GetGames()
+        {
+            // Final list of all games
+            List<Game> allGames = new List<Game>();
+            // and individual launchers
+            List<Game> steamGames = Steam.UserVdiReader();
+            List<Game> battleNetGames = BattleNet.InstalledGames();
+
+            foreach (Game nowgame in steamGames) { allGames.Add(nowgame); }
+            foreach (Game nowgame in battleNetGames) { allGames.Add(nowgame); }
+
+            var sortedGames = allGames.OrderBy(Game => Game.Title);
+            return sortedGames.ToList<Game>();
+        }
+
+        public struct Game
+        {
+            public string Id { get; set; }
+            public string Title { get; set; }
+            public string Launcher { get; set; }
+            public string Path { get; set; }
+            public StackPanel detailFrame { get; set; }
         }
     }
 
-    public static List<Game> GetGames()
+    public class GameSorter : IComparer<Computer.Game>
     {
-        // Final list of all games
-        SortedSet<Game> allGames = new SortedSet<Game>(new GameSorter());
-        // and individual launchers
-        List<Game> steamGames = Steam.InstalledAsync().Result;
-
-        foreach (Game nowgame in steamGames)
+        public int Compare(Computer.Game gameA, Computer.Game gameB)
         {
-            allGames.Add(nowgame);
+            return gameA.Title.CompareTo(gameB.Title);
         }
-
-        var sortedGames = allGames.OrderBy(Game => Game.Title);
-        return sortedGames.ToList<Game>();
     }
 
-    public struct Game
-    {
-        public string Id { get; set; }
-        public string Title { get; set; }
-        public string Launcher { get; set; }
-        public string Path { get; set; }
-        public StackPanel detailFrame { get; set; }
-    }
-}
 
-public class GameSorter : IComparer<Computer.Game>
-{
-    public int Compare(Computer.Game gameA, Computer.Game gameB)
-    {
-        return gameA.Title.CompareTo(gameB.Title);
-    }
 }

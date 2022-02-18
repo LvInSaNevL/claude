@@ -59,15 +59,5 @@ namespace Claude.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        public static byte[] UserData {
-            get {
-                object obj = ResourceManager.GetObject("UserData", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
     }
 }

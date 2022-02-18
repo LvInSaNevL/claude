@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Controls;
 
-namespace ClaudeLauncher
+namespace Claude
 {
     class SettingsContent
     {
@@ -12,6 +12,10 @@ namespace ClaudeLauncher
             TextBlock text = new TextBlock();
             text.Text = "Claude Settings";
             stack.Children.Add(text);
+
+            Button wizardButt = new Button() { Content = "Launch Wizard" };
+            wizardButt.Click += ClaudeSettings.InstallWizard;
+            stack.Children.Add(wizardButt);
 
             return stack;
         }
@@ -24,8 +28,8 @@ namespace ClaudeLauncher
 
             StackPanel exeStack = new StackPanel() { Orientation = Orientation.Horizontal, Margin = new System.Windows.Thickness(0, 0, 0, 15) };
             StackPanel gameStack = new StackPanel() { Orientation = Orientation.Vertical };
-                        
-            TextBlock exeLocText = new TextBlock { Text = Computer.FindUserData(Computer.ReadUserData(), "steam.exe") };
+
+            TextBlock exeLocText = new TextBlock { Text = Computer.ReadUserData().SelectToken("Steam.exe").ToString() };
             exeStack.Children.Add(exeLocText);
             Button exeLocButton = new Button { 
                 Content = "Change",
@@ -65,7 +69,7 @@ namespace ClaudeLauncher
 
             StackPanel exeStack = new StackPanel() { Orientation = Orientation.Horizontal, Margin = new System.Windows.Thickness(0, 0, 0, 15) };
 
-            TextBlock exeLocText = new TextBlock { Text = Computer.FindUserData(Computer.ReadUserData(), "battlenet.exe") };
+            TextBlock exeLocText = new TextBlock { Text = Computer.ReadUserData().SelectToken("BattleNet.exe").ToString() };
             exeStack.Children.Add(exeLocText);
             Button exeLocButton = new Button
             {
