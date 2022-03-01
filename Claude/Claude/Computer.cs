@@ -11,6 +11,8 @@ using Newtonsoft.Json;
 using System.Windows.Controls.Primitives;
 using Microsoft.CSharp.RuntimeBinder;
 using System.Windows.Media.Imaging;
+using System.Net.Http;
+using System.Text;
 
 namespace Claude
 {
@@ -106,8 +108,26 @@ namespace Claude
             return parsedData;
         }
 
+        public static void CallClaude()
+        {
+            LilGame testGame = new LilGame()
+            {
+                Id = "275850",
+                Launcher = "Steam"
+            };
+            var content = JsonConvert.SerializeObject(testGame);
+
+            using (var client = new WebClient())
+            {
+                client.Headers[HttpRequestHeader.ContentType] = "application/json";
+                var result = client.UploadString("https://localhost:44337/getgames", content);
+                Console.WriteLine(result);
+            }
+        }
+
         public static List<Game> GetGames()
         {
+            //CallClaude();
             // Final list of all games
             List<Game> allGames = new List<Game>();
             // and individual launchers
@@ -121,23 +141,50 @@ namespace Claude
             return sortedGames.ToList<Game>();
         }
 
-        public struct Game
+        public struct LilGame
         {
             public string Id { get; set; }
-            public string Title { get; set; }
             public string Launcher { get; set; }
+        }
+
+        public struct Game
+        {
+            /// <summary>
+            /// The launcher based ID for the game
+            /// </summary>
+            public string Id { get; set; }
+            /// <summary>
+            /// "Normal" human readable title of the game
+            /// </summary>
+            public string Title { get; set; }
+            /// <summary>
+            /// A short description of the game
+            /// </summary>
+            public string About { get; set; }
+            /// <summary>
+            /// Initial release date
+            /// </summary>
+            public string Release { get; set; }
+            /// <summary>
+            /// Primary developer
+            /// </summary>
+            public string Developer { get; set; }
+            /// <summary>
+            /// Primary publisher
+            /// </summary>
+            public string Publisher { get; set; }
+            /// <summary>
+            /// Which launcher the game uses
+            /// </summary>
+            public string Launcher { get; set; }
+            /// <summary>
+            /// File path to executable
+            /// </summary>
             public string Path { get; set; }
+            /// <summary>
+            /// Which stack panel the game is added to
+            /// </summary>
             public StackPanel detailFrame { get; set; }
         }
     }
-
-    public class GameSorter : IComparer<Computer.Game>
-    {
-        public int Compare(Computer.Game gameA, Computer.Game gameB)
-        {
-            return gameA.Title.CompareTo(gameB.Title);
-        }
-    }
-
-
 }

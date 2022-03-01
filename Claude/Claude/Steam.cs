@@ -35,10 +35,12 @@ namespace Claude
 
                         if (!Banned(currentID))
                         {
-                            Computer.Game currentGame = new Computer.Game();
-                            currentGame.Launcher = "Steam";
-                            currentGame.Path = path.ToString();
-                            currentGame.Id = currentID;
+                            Computer.Game currentGame = new Computer.Game()
+                            {
+                                Launcher = "Steam",
+                                Path = path.ToString(),
+                                Id = currentID
+                            };
 
                             Computer.TempDownload($"https://store.steampowered.com/api/appdetails?appids={currentID}", $"steamapps/{currentID}.json");
                             try
@@ -47,6 +49,11 @@ namespace Claude
                                 string gameFile = File.ReadAllText($"{Directory.GetCurrentDirectory()}/cache/steamapps/{currentID}.json");
                                 dynamic parsedGame = Details(currentID);
                                 currentGame.Title = parsedGame["name"];
+                                currentGame.Release = parsedGame["release_date"]["date"];
+                                currentGame.About = parsedGame["about_the_game"];
+                                currentGame.Developer = parsedGame["developers"][0];
+                                currentGame.Publisher = parsedGame["publishers"][0];
+
                             }
                             catch (Exception) { currentGame.Title = $"Steam Utility - {currentID}"; }
 

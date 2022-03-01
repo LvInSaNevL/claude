@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -110,6 +111,7 @@ namespace Claude
 
             steamLibrary.Content = textStack;
             leftHandMenu.Content = steamLibrary;
+
             biggerBoxInstalled.Content = boxArtStack;
         }
 
@@ -131,7 +133,7 @@ namespace Claude
             Computer.Game button = (Computer.Game)(sender as Button).Tag;
             StackPanel details = button.detailFrame;
 
-            details.Children.Add(ControlBuilder.GameDetails(button, (biggerBoxInstalled.ActualWidth, biggerBoxInstalled.ActualHeight)));
+            details.Children.Add(new Views.GameDetails(button, (biggerBoxInstalled.ActualWidth, biggerBoxInstalled.ActualHeight)));
             details.Visibility = Visibility.Visible;
             details.BringIntoView();
         }
