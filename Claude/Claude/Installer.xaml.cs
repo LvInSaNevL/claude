@@ -17,6 +17,7 @@ namespace Claude
     {
         private readonly string jsonstring = "{\"claude\":{},\"Steam\":{\"exe\":\"\",\"install\":[]},\"BattleNet\":{\"exe\":\"\",\"install\":[]},\"Origin\":{\"exe\":\"\",\"install\":[]},\"Ubisoft\":{\"exe\":\"\",\"install\":[]}}";
         private static dynamic jsondata;
+        public static List<Computer.Game> installerGames = new List<Computer.Game>();
 
         public Installer()
         {
@@ -72,11 +73,28 @@ namespace Claude
         {
             ContentField.Children.Clear();
 
-            TextBlock welcomeText = new TextBlock() { Text = "You can add other games too!" };
-            TextBlock infoText = new TextBlock() { Text = "Go ahead and add them here" };
+            StackPanel stackPanel = new StackPanel()
+            {
+                Orientation = Orientation.Vertical
+            };
+            stackPanel.Children.Add(new TextBlock() { Text = "Add any other games here: " });
 
-            ContentField.Children.Add(welcomeText);
-            ContentField.Children.Add(infoText);
+            if (installerGames != null)
+            {
+                foreach (Computer.Game game in installerGames)
+                {
+                    stackPanel.Children.Add(new TextBlock() { Text = game.Title });
+                }
+            }
+            Button addButton = new Button() 
+            { 
+                Content = new TextBlock() { Text = "Add game" },
+                Tag = stackPanel
+            };
+            addButton.Click += AddOtherGame;
+            stackPanel.Children.Add(addButton);
+
+            ContentField.Children.Add(stackPanel);
 
             NextButton.Click += Finally;
             PreviousButton.Click += Games;
@@ -93,7 +111,7 @@ namespace Claude
             ContentField.Children.Add(infoText);
 
             NextButton.Click += EndSetup;
-            PreviousButton.Click += Games;
+            PreviousButton.Click += Others;
         }
 
         private void EndSetup(object sender = null, RoutedEventArgs e = null)
@@ -180,6 +198,53 @@ namespace Claude
             newLocations.Remove(data.Item3);
             token.Replace(new JArray(newLocations));
 
+            ContentField.Children.Remove(data.Item1);
+            Others();
+        }
+
+        private void AddOtherGame(object sender, RoutedEventArgs e)
+        {
+            var item = sender as Button;
+            StackPanel stack = (StackPanel)item.Tag;
+
+            var dialog = new CommonOpenFileDialog();
+            dialog.IsFolderPicker = false;
+            CommonFileDialogResult result = dialog.ShowDialog();
+
+            if (result == CommonFileDialogResult.Ok)
+            {
+                StackPanel newStack = new StackPanel() { Orientation = Orientation.Horizontal };
+                newStack.Children.Add(new TextBlock() { Text = dialog.FileName });
+                Button removeButton = new Button() { Content = "Remove", Tag = (newStack, dialog.FileName) };
+                removeButton.Click += RemoveOtherGame;
+                newStack.Children.Add(removeButton);
+                stack.Children.Insert(stack.Children.Count - 1, newStack);
+
+                Computer.Game game = new Computer.Game()
+                {
+                    Title = dialog.FileName,
+                    Launcher = "Other",
+                    Path = dialog.FileName,
+                };
+                installerGames.Add(game);
+            }
+
+
+        }
+
+        private void RemoveOtherGame(object sender, RoutedEventArgs e)
+        {
+            var item = sender as Button;
+            (StackPanel, string) data = ((StackPanel, string))item.Tag;
+            StackPanel stack = data.Item1;
+
+            for (int i = 0; i < installerGames.Count; i++)
+            {
+                if (installerGames[i].Title == data.Item2)
+                {
+                    installerGames.RemoveAt(i);
+                }
+            }
             ContentField.Children.Remove(data.Item1);
         }
 

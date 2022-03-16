@@ -5,14 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Windows.Controls;
-using System.Reflection;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-using System.Windows.Controls.Primitives;
-using Microsoft.CSharp.RuntimeBinder;
-using System.Windows.Media.Imaging;
-using System.Net.Http;
-using System.Text;
 
 namespace Claude
 {
@@ -46,19 +40,30 @@ namespace Claude
 
         public static void Initialize()
         {
+
             Directory.CreateDirectory(cache);
             Directory.CreateDirectory(steamapps);
 
-            try { dynamic dynamic = ReadUserData(); }
-            catch (Exception e)
-            { 
+            bool forceInstaller = false;
+            if (forceInstaller)
+            {
                 Installer wizard = new Installer();
                 wizard.Show();
                 return;
             }
+            else
+            {
+                try { dynamic dynamic = ReadUserData(); }
+                catch (Exception e)
+                {
+                    Installer wizard = new Installer();
+                    wizard.Show();
+                    return;
+                }
 
-            MainWindow main = new MainWindow();
-            main.Show();
+                MainWindow main = new MainWindow();
+                main.Show();
+            }
         }
 
         public static void ShutDown()
@@ -103,41 +108,68 @@ namespace Claude
                     parsedData = JObject.Parse(resutl);
                 }
             }
-            catch (FileNotFoundException e) { throw new FileNotFoundException(); }
+            catch (FileNotFoundException e) { return new FileNotFoundException(); }
 
             return parsedData;
         }
 
-        public static void CallClaude()
+        public static List<Game> CallClaude(List<Game> games)
         {
-            LilGame testGame = new LilGame()
+            List<LilGame> list = new List<LilGame>();
+            foreach (Game game in games)
             {
-                Id = "275850",
-                Launcher = "Steam"
-            };
-            var content = JsonConvert.SerializeObject(testGame);
+                list.Add(new LilGame()
+                {
+                    Id = game.Id,
+                    Launcher = game.Launcher
+                });
+            }
+            string content = JsonConvert.SerializeObject(list);            
+            //if (content != null) { return new List<Game>(); }
 
             using (var client = new WebClient())
             {
                 client.Headers[HttpRequestHeader.ContentType] = "application/json";
                 var result = client.UploadString("https://localhost:44337/getgames", content);
-                Console.WriteLine(result);
+
+                List<Game> resultGames = JsonConvert.DeserializeObject<List<Game>>(result);
+                resultGames.RemoveAll(x => x.Title == "null");
+
+                return resultGames;
             }
         }
 
         public static List<Game> GetGames()
         {
-            //CallClaude();
             // Final list of all games
             List<Game> allGames = new List<Game>();
-            // and individual launchers
-            List<Game> steamGames = Steam.UserVdiReader();
-            List<Game> battleNetGames = BattleNet.InstalledGames();
+            List<Game> lilGames = new List<Game>();
 
-            foreach (Game nowgame in steamGames) { allGames.Add(nowgame); }
-            foreach (Game nowgame in battleNetGames) { allGames.Add(nowgame); }
+            // Read from user data file
+            Uri maybePath = new Uri("pack://application:,,,/Resources/UserGames.json");
+            string fullPath = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+            fullPath = $"{fullPath}\\{maybePath.LocalPath}";
+            using StreamReader reader = new StreamReader(fullPath);
+            string result = reader.ReadToEnd().ToString();
+            reader.Dispose();
+            try { allGames.AddRange(JsonConvert.DeserializeObject<List<Game>>(result)); } catch { Console.WriteLine("Error reading UserGames"); }
 
+            // Adding individual launchers
+            lilGames.AddRange(Steam.InstalledGames());
+            lilGames.AddRange(BattleNet.InstalledGames());
+
+            // And adding any new games
+            List<Game> diffGames = lilGames.Where(l => !allGames.Select(a => a.Id).Contains(l.Id)).ToList();
+            List<Game> newGames = CallClaude(diffGames);
+            foreach (Game newGame in newGames) { allGames.Add(newGame); }
+
+            // Organizing and saving everything before returning
             var sortedGames = allGames.OrderBy(Game => Game.Title);
+            using (StreamWriter writer = File.CreateText(fullPath))
+            {
+                string stringData = JsonConvert.SerializeObject(sortedGames);
+                writer.WriteLine(stringData);
+            }
             return sortedGames.ToList<Game>();
         }
 
@@ -147,44 +179,83 @@ namespace Claude
             public string Launcher { get; set; }
         }
 
+        private static List<LilGame> GameSorter(List<Game> allGames, List<Game>lilgames)
+        {
+            for (int i = 0; i < lilgames.Count; i++)
+            {
+                string checkGame = lilgames[i].Id;
+                foreach (Game game in allGames)
+                {
+                    if (game.Id == checkGame)
+                    {
+                        lilgames.RemoveAt(i);
+                    }
+                }
+                if (allGames.Contains(lilgames[i]))
+                {
+                    lilgames.RemoveAt(i);
+                }
+            }
+
+            List<LilGame> list = new List<LilGame>();
+            foreach (Game game in lilgames)
+            {
+                list.Add(new LilGame()
+                {
+                    Id = game.Id,
+                    Launcher = game.Launcher
+                });
+            }
+            return list;
+        }
+
         public struct Game
         {
             /// <summary>
-            /// The launcher based ID for the game
+            /// The launcher code for the game
             /// </summary>
             public string Id { get; set; }
             /// <summary>
-            /// "Normal" human readable title of the game
+            /// The "normal" human readable name
             /// </summary>
             public string Title { get; set; }
             /// <summary>
-            /// A short description of the game
+            /// A short little description of the game
             /// </summary>
             public string About { get; set; }
             /// <summary>
-            /// Initial release date
+            /// The date the game released, formatted in RFC1123 without timestamp
             /// </summary>
             public string Release { get; set; }
             /// <summary>
-            /// Primary developer
+            /// The developer of the game
             /// </summary>
             public string Developer { get; set; }
             /// <summary>
-            /// Primary publisher
+            /// The publisher of the game
             /// </summary>
             public string Publisher { get; set; }
             /// <summary>
-            /// Which launcher the game uses
+            /// The launcher claude code for the launcher
+            /// Currently supported: "Steam", "BattleNet", "Other"
             /// </summary>
             public string Launcher { get; set; }
             /// <summary>
-            /// File path to executable
+            /// The URL to the main thumbnail
+            /// </summary>
+            public string Thumbnail { get; set; }
+            /// <summary>
+            /// An array of URLs to any promotional images
+            /// </summary>
+            public string[] Screenshots { get; set; }
+            /// <summary>
+            /// Path on disk to executable
             /// </summary>
             public string Path { get; set; }
             /// <summary>
             /// Which stack panel the game is added to
             /// </summary>
-            public StackPanel detailFrame { get; set; }
+            public StackPanel DetailFrame { get; set; }
         }
     }
 }

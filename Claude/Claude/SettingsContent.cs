@@ -51,14 +51,10 @@ namespace Claude
 
             return stack;
         }
-        public static StackPanel OriginSettings()
+        public static Views.LauncherSettings OriginSettings()
         {
-            StackPanel stack = new StackPanel();
-            TextBlock text = new TextBlock();
-            text.Text = "Origin Settings";
-            stack.Children.Add(text);
-
-            return stack;
+            Views.LauncherSettings launcherSettings = new Views.LauncherSettings();
+            return launcherSettings;
         }
         public static StackPanel BattleNetSettings()
         {

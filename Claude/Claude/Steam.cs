@@ -71,11 +71,22 @@ namespace Claude
             return appList;
         }
 
-        public static List<Computer.Game> InstalledGames(string path)
+        public static List<Computer.Game> InstalledGames()
         {
-            List<Computer.Game> games = new List<Computer.Game>();
+            List<Computer.Game> games = UserVdiReader();
+            List<Computer.Game> lilGames = new List<Computer.Game>();
 
-            return games;
+            foreach (Computer.Game game in games)
+            {
+                lilGames.Add(new Computer.Game()
+                {
+                    Id = game.Id,
+                    Launcher = game.Launcher,
+                });
+            }
+
+
+            return lilGames;
         }
 
         public static string GetExe()

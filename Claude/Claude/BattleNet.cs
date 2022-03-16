@@ -60,13 +60,11 @@ namespace Claude
                     var result = handler.Data.ToString();
                     dynamic data = JObject.Parse(result);
 
-                    Computer.Game nowGame = new Computer.Game();
-                    nowGame.Id = data["productInstall"][0]["uid"];
-                    nowGame.Title = GameArgs[data["productInstall"][0]["productCode"].ToString()];
-                    nowGame.Launcher = "BattleNet";
-                    nowGame.Path = data["productInstall"][0]["settings"]["installPath"];
-
-                    games.Add(nowGame);
+                    games.Add(new Computer.Game()
+                    {
+                        Id = data["productInstall"][0]["uid"],
+                        Launcher = "BattleNet"
+                    });                
                 }
             }
 

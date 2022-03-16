@@ -41,14 +41,6 @@ namespace Claude
             int gridWidth = (int)biggerBoxInstalled.ActualWidth / 345;
             float gridHeight = (installedGames.Count + 1) / gridWidth + 1;
 
-            Expander steamLibrary = new Expander
-            {
-                ExpandDirection = ExpandDirection.Down,
-                IsExpanded = true,
-                Header = "Steam Library",
-            };
-            StackPanel textStack = new StackPanel { Orientation = Orientation.Vertical };
-
             int counter = 0;
             for (int x = 0; x < gridHeight; x++)
             {
@@ -84,7 +76,7 @@ namespace Claude
                     try { target = new BitmapImage(new Uri(Computer.CachePath($"{nowgame.Id}.jpg"))); }
                     catch { target = new BitmapImage(new Uri($"pack://application:,,,/Resources/{nowgame.Launcher}Holder.jpg", UriKind.Absolute)); }
 
-                    nowgame.detailFrame = details;
+                    nowgame.DetailFrame = details;
                     Button gameButton = ControlBuilder.BoxArtButton(nowgame, target);
                     gameButton.Click += GameButtonClick;
                     gameButton.MouseDoubleClick += LauncherButton;
@@ -98,19 +90,19 @@ namespace Claude
                         Tag = nowgame.Id,
                         Content = nowgame.Title,
                         Height = 50,
+                        ToolTip = $"{nowgame.Launcher}: {nowgame.Id}"
                     };
                     gameText.Click += GameButtonClick;
                     gameText.MouseDoubleClick += LauncherButton;
-                    textStack.Children.Add(gameText);
+
+                    if (nowgame.Launcher == "Steam") { SteamExpanderStack.Children.Add(gameText); }
+                    if (nowgame.Launcher == "BattleNet") { BattleNetExpanderStack.Children.Add(gameText); }
                 }
 
                 fullCurrentRow.Children.Add(currentRow);
                 fullCurrentRow.Children.Add(details);
                 boxArtStack.Children.Add(fullCurrentRow);
             }
-
-            steamLibrary.Content = textStack;
-            leftHandMenu.Content = steamLibrary;
 
             biggerBoxInstalled.Content = boxArtStack;
         }
@@ -131,7 +123,7 @@ namespace Claude
 
 
             Computer.Game button = (Computer.Game)(sender as Button).Tag;
-            StackPanel details = button.detailFrame;
+            StackPanel details = button.DetailFrame;
 
             details.Children.Add(new Views.GameDetails(button, (biggerBoxInstalled.ActualWidth, biggerBoxInstalled.ActualHeight)));
             details.Visibility = Visibility.Visible;

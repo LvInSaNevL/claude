@@ -1,25 +1,19 @@
 {
   "claude": {},
   "Steam": {
-    "exe": "C:\\Program Files (x86)\\Steam\\steam.exe",
-    "install": [
-      "D:\\SteamLibrary"
-    ]
+    "exe": "",
+    "install": []
   },
-  "BattleNet": {
-    "exe": "C:\\Program Files (x86)\\Battle.net\\Battle.net Launcher.exe",
-    "install": [
-      "D:\\BattleNetLibrary"
-    ]
-  },
+    "BattleNet": {
+        "exe": "C:\\Program Files (x86)\\Battle.net",
+        "install": [ "D:\\BattleNetLibrary" ]
+    },
   "Origin": {
-    "exe": "C:\\Program Files (x86)\\Origin\\Origin.exe",
+    "exe": "",
     "install": []
   },
   "Ubisoft": {
-    "exe": "C:\\Program Files (x86)\\Ubisoft\\Ubisoft Game Launcher\\UbisoftGameLauncher.exe",
-    "install": [
-      "D:\\Ubisoft"
-    ]
+    "exe": "",
+    "install": []
   }
 }

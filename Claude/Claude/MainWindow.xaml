@@ -63,7 +63,21 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <ScrollViewer x:Name="leftHandMenu" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden" Grid.Column="0" Grid.Row="1" Style="{StaticResource fullGameList}">
-                
+                <StackPanel x:Name="leftHandStack">
+                    <Expander x:Name="SteamExpander"
+                              ExpandDirection="Down"
+                              IsExpanded="True"
+                              Header="Steam Library">
+                        <StackPanel x:Name="SteamExpanderStack"
+                                Orientation="Vertical" />
+                    </Expander>
+                    <Expander x:Name="BattleNetExpander"
+                              ExpandDirection="Down"
+                              IsExpanded="True"
+                              Header="Battle.Net Library">
+                        <StackPanel x:Name="BattleNetExpanderStack" />
+                    </Expander>
+                </StackPanel>
             </ScrollViewer>
             <ScrollViewer x:Name="biggerBoxInstalled" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="1" Style="{StaticResource boxArt}">
             </ScrollViewer>

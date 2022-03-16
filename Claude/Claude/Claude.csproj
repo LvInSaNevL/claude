@@ -21,6 +21,7 @@
     <None Remove="Resources\Logo\Logo.png" />
     <None Remove="Resources\Splashscreen.png" />
     <None Remove="Resources\SteamHolder.jpg" />
+    <None Remove="Resources\UserGames.json" />
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
@@ -59,6 +60,9 @@
       <Generator>MSBuild:Compile</Generator>
     </Resource>
     <Resource Include="Resources\SteamHolder.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\UserGames.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
