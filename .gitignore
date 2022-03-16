@@ -5,6 +5,7 @@
 
 # Claude Specific Files
 [Rr]esources/UserData.json
+[Rr]esources/UserGames.json
 
 # User-specific files
 *.rsuser

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-namespace ClaudeLauncher
+namespace Claude
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -14,16 +17,18 @@ namespace ClaudeLauncher
     {
         public MainWindow()
         {
+            //Computer.Initialize();
+
             SplashScreen splashScreen = new SplashScreen("Resources\\Splashscreen.png");
             splashScreen.Show(true);
-
-            Computer.Initialize();
+            
 
             Application.Current.MainWindow.WindowState = WindowState.Maximized;
-            InitializeComponent();
+
 
             this.Loaded += MainWindow_Loaded;
-
+            this.WindowState = WindowState.Maximized;
+            InitializeComponent();
             splashScreen.Show(false);
         }
 
@@ -34,15 +39,7 @@ namespace ClaudeLauncher
             StackPanel boxArtStack = new StackPanel() { Orientation = Orientation.Vertical, Name = "boxArtStack" };
 
             int gridWidth = (int)biggerBoxInstalled.ActualWidth / 345;
-            int gridHeight = installedGames.Count / gridWidth;
-
-            Expander steamLibrary = new Expander
-            {
-                ExpandDirection = ExpandDirection.Down,
-                IsExpanded = true,
-                Header = "Steam Library",
-            };
-            StackPanel textStack = new StackPanel { Orientation = Orientation.Vertical };
+            float gridHeight = (installedGames.Count + 1) / gridWidth + 1;
 
             int counter = 0;
             for (int x = 0; x < gridHeight; x++)
@@ -70,14 +67,16 @@ namespace ClaudeLauncher
                 for (int y = 0; y < gridWidth; y++)
                 {
                     counter++;
-                    Computer.Game nowgame = installedGames[counter - 1];
+                    Computer.Game nowgame = new Computer.Game();
+                    try { nowgame = installedGames[counter - 1]; }
+                    catch (ArgumentOutOfRangeException) { break; }
 
                     // Adding button image to big box art
                     BitmapImage target = new BitmapImage();
                     try { target = new BitmapImage(new Uri(Computer.CachePath($"{nowgame.Id}.jpg"))); }
-                    catch { target = new BitmapImage(new Uri(@"pack://application:,,,/Resources/SteamHolder.jpg", UriKind.Absolute)); }
+                    catch { target = new BitmapImage(new Uri($"pack://application:,,,/Resources/{nowgame.Launcher}Holder.jpg", UriKind.Absolute)); }
 
-                    nowgame.detailFrame = details;
+                    nowgame.DetailFrame = details;
                     Button gameButton = ControlBuilder.BoxArtButton(nowgame, target);
                     gameButton.Click += GameButtonClick;
                     gameButton.MouseDoubleClick += LauncherButton;
@@ -91,10 +90,13 @@ namespace ClaudeLauncher
                         Tag = nowgame.Id,
                         Content = nowgame.Title,
                         Height = 50,
+                        ToolTip = $"{nowgame.Launcher}: {nowgame.Id}"
                     };
                     gameText.Click += GameButtonClick;
                     gameText.MouseDoubleClick += LauncherButton;
-                    textStack.Children.Add(gameText);
+
+                    if (nowgame.Launcher == "Steam") { SteamExpanderStack.Children.Add(gameText); }
+                    if (nowgame.Launcher == "BattleNet") { BattleNetExpanderStack.Children.Add(gameText); }
                 }
 
                 fullCurrentRow.Children.Add(currentRow);
@@ -102,8 +104,6 @@ namespace ClaudeLauncher
                 boxArtStack.Children.Add(fullCurrentRow);
             }
 
-            steamLibrary.Content = textStack;
-            leftHandMenu.Content = steamLibrary;
             biggerBoxInstalled.Content = boxArtStack;
         }
 
@@ -123,9 +123,9 @@ namespace ClaudeLauncher
 
 
             Computer.Game button = (Computer.Game)(sender as Button).Tag;
-            StackPanel details = button.detailFrame;
+            StackPanel details = button.DetailFrame;
 
-            details.Children.Add(ControlBuilder.GameDetails(button, (biggerBoxInstalled.ActualWidth, biggerBoxInstalled.ActualHeight)));
+            details.Children.Add(new Views.GameDetails(button, (biggerBoxInstalled.ActualWidth, biggerBoxInstalled.ActualHeight)));
             details.Visibility = Visibility.Visible;
             details.BringIntoView();
         }
@@ -164,12 +164,11 @@ namespace ClaudeLauncher
             return FindBigThumbnail(VisualTreeHelper.GetParent(starter));
         }
 
-        public void settingsButtonClick(object sender, RoutedEventArgs e)
+        public void SettingsButtonClick(object sender, RoutedEventArgs e)
         {
             var item = sender as Button;
             ClaudeSettings settings = new ClaudeSettings(item.Tag.ToString());
             settings.Show();
-            settings.Focus();
         }
 
         public void settingsMenuClick(object sender, RoutedEventArgs e)
@@ -180,6 +179,15 @@ namespace ClaudeLauncher
                 addButton.ContextMenu.IsOpen = true;
             }
         }
+
+        public void userDataNotFound(object sender, RoutedEventArgs e)
+        {
+            Claude.Installer instalelr = new Claude.Installer();
+            Close();
+            instalelr.Show();
+        }
+
+        public void ShutDown(object sender, RoutedEventArgs e) { Computer.ShutDown(); }
 
         private void steamAuthRoute(object sender, RoutedEventArgs e) { Console.Write("This was supposed to do something lol"); }
     }
