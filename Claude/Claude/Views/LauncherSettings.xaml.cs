@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 
 namespace Claude.Views
 {
@@ -21,11 +22,47 @@ namespace Claude.Views
     /// </summary>
     public partial class LauncherSettings : UserControl
     {
-        public LauncherSettings()
+        public LauncherSettings(string launcher)
         {
+            dynamic data = Computer.ReadUserData();
+            dynamic launcherData = data[launcher];
+
             InitializeComponent();
+
+            LauncherTitle.Text = launcher;
+            CurrentExeLoc.Text = launcherData["exe"];
+
+            for (int i = 0; i < launcherData["install"].Count; i++)
+            {
+                string test = launcherData["install"][i].ToString();
+                IndividualDirs.Children.Add(DirPanel(i, test));
+            }
         }
-        public static void ChangePathClick(object sender, RoutedEventArgs e)
+
+        private StackPanel DirPanel(int count, string path)
+        {
+            StackPanel panel = new StackPanel() { Orientation = Orientation.Horizontal };
+            panel.Children.Add(new TextBlock() { Text = $"{count.ToString()}: " });
+
+            StackPanel dirStack = new StackPanel() { Orientation = Orientation.Horizontal };
+            dirStack.Children.Add(new TextBlock() { Text = $"{count.ToString()}: {path}" });
+            dirStack.Children.Add(new Button() { Content = "Remove" });
+            panel.Children.Add(dirStack);
+
+            Expander presenter = new Expander();
+            StackPanel gamesStack = new StackPanel() { Orientation = Orientation.Vertical };
+            List<Computer.Game> games = Computer.ReadUserGames();
+            for (int i = 0; i < 5; i++)
+            {
+                gamesStack.Children.Add(new TextBlock() { Text =games[i].Title.ToString() });
+            }
+            presenter.Content = gamesStack;
+            panel.Children.Add(presenter);
+
+            return panel;
+        }
+
+        public static void ChangeExePathClick(object sender, RoutedEventArgs e)
         {
             var item = sender as Button;
             (TextBlock, string) data = ((TextBlock, string))item.Tag;
@@ -49,5 +86,11 @@ namespace Claude.Views
             }
         }
 
+
+        private struct LauncherConfig
+        {
+            public string LauncherLoc { get; set; }
+            public string[] InstallDirs { get; set; }
+        }
     }
 }

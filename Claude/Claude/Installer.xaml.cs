@@ -48,9 +48,10 @@ namespace Claude
             ContentField.Children.Add(new TextBlock() { Text = "Just click below" });
 
             // Steam
-            ContentField.Children.Add(LauncherDropDown("Steam",
-                                                       "Steam",
-                                                       "steam"));
+            ContentField.Children.Add(new Views.LauncherSettings("Steam"));
+            //ContentField.Children.Add(LauncherDropDown("Steam",
+            //                                           "Steam",
+            //                                           "steam"));
             // Battle.Net
             ContentField.Children.Add(LauncherDropDown("Battle.Net",
                                                        "BattleNet",

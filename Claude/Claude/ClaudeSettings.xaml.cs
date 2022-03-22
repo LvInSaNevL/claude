@@ -29,13 +29,13 @@ namespace Claude
                     contentField.Children.Add(SettingsContent.Claude());
                     break;
                 case "steam":
-                    contentField.Children.Add(SettingsContent.SteamSettings());
+                    contentField.Children.Add(new Views.LauncherSettings("Steam"));
                     break;
                 case "origin":
-                    contentField.Children.Add(SettingsContent.OriginSettings());
+                    contentField.Children.Add(new Views.LauncherSettings("Origin"));
                     break;
                 case "battlenet":
-                    contentField.Children.Add(SettingsContent.BattleNetSettings());
+                    contentField.Children.Add(new Views.LauncherSettings("BattleNet"));
                     break;
                 case "other":
                     contentField.Children.Add(SettingsContent.OtherGamesSettings());

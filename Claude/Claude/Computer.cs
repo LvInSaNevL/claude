@@ -71,6 +71,18 @@ namespace Claude
             System.Windows.Application.Current.Shutdown();
         }
 
+        public static List<Game> ReadUserGames()
+        {
+            Uri maybePath = new Uri("pack://application:,,,/Resources/UserGames.json");
+            string fullPath = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+            fullPath = $"{fullPath}\\{maybePath.LocalPath}";
+            using StreamReader reader = new StreamReader(fullPath);
+            string result = reader.ReadToEnd().ToString();
+            reader.Dispose();
+            try { return JsonConvert.DeserializeObject<List<Game>>(result); }
+            catch { return new List<Game>(); }
+        }
+
         public static string ChangeUserData(string target, string newVal)
         {
             string[] splitTarget = newVal.Split(".");
@@ -124,19 +136,23 @@ namespace Claude
                     Launcher = game.Launcher
                 });
             }
-            string content = JsonConvert.SerializeObject(list);            
+            string content = JsonConvert.SerializeObject(list);
             //if (content != null) { return new List<Game>(); }
 
-            using (var client = new WebClient())
+            try
             {
-                client.Headers[HttpRequestHeader.ContentType] = "application/json";
-                var result = client.UploadString("https://localhost:44337/getgames", content);
+                using (var client = new WebClient())
+                {
+                    client.Headers[HttpRequestHeader.ContentType] = "application/json";
+                    var result = client.UploadString("https://localhost:44337/getgames", content);
 
-                List<Game> resultGames = JsonConvert.DeserializeObject<List<Game>>(result);
-                resultGames.RemoveAll(x => x.Title == "null");
+                    List<Game> resultGames = JsonConvert.DeserializeObject<List<Game>>(result);
+                    resultGames.RemoveAll(x => x.Title == "null");
 
-                return resultGames;
+                    return resultGames;
+                }
             }
+            catch { return new List<Game>(); }
         }
 
         public static List<Game> GetGames()
@@ -146,13 +162,7 @@ namespace Claude
             List<Game> lilGames = new List<Game>();
 
             // Read from user data file
-            Uri maybePath = new Uri("pack://application:,,,/Resources/UserGames.json");
-            string fullPath = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
-            fullPath = $"{fullPath}\\{maybePath.LocalPath}";
-            using StreamReader reader = new StreamReader(fullPath);
-            string result = reader.ReadToEnd().ToString();
-            reader.Dispose();
-            try { allGames.AddRange(JsonConvert.DeserializeObject<List<Game>>(result)); } catch { Console.WriteLine("Error reading UserGames"); }
+            allGames.AddRange(ReadUserGames());
 
             // Adding individual launchers
             lilGames.AddRange(Steam.InstalledGames());
@@ -165,6 +175,9 @@ namespace Claude
 
             // Organizing and saving everything before returning
             var sortedGames = allGames.OrderBy(Game => Game.Title);
+            Uri maybePath = new Uri("pack://application:,,,/Resources/UserData.json");
+            string fullPath = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+            fullPath = $"{fullPath}\\{maybePath.LocalPath}";
             using (StreamWriter writer = File.CreateText(fullPath))
             {
                 string stringData = JsonConvert.SerializeObject(sortedGames);
