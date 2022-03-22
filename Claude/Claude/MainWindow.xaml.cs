@@ -73,7 +73,7 @@ namespace Claude
 
                     // Adding button image to big box art
                     BitmapImage target = new BitmapImage();
-                    try { target = new BitmapImage(new Uri(Computer.CachePath($"{nowgame.Id}.jpg"))); }
+                    try { target = new BitmapImage(new Uri($"{FilePaths.cache}/{nowgame.Id}.jpg")); }
                     catch { target = new BitmapImage(new Uri($"pack://application:,,,/Resources/{nowgame.Launcher}Holder.jpg", UriKind.Absolute)); }
 
                     nowgame.DetailFrame = details;

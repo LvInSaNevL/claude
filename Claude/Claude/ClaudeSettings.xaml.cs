@@ -26,7 +26,7 @@ namespace Claude
             switch (target)
             {
                 case "claude":
-                    contentField.Children.Add(SettingsContent.Claude());
+                    contentField.Children.Add(new Views.LauncherSettings("Steam"));
                     break;
                 case "steam":
                     contentField.Children.Add(new Views.LauncherSettings("Steam"));
@@ -38,10 +38,10 @@ namespace Claude
                     contentField.Children.Add(new Views.LauncherSettings("BattleNet"));
                     break;
                 case "other":
-                    contentField.Children.Add(SettingsContent.OtherGamesSettings());
+                    contentField.Children.Add(new Views.LauncherSettings("BattleNet"));
                     break;
                 case "donate":
-                    contentField.Children.Add(SettingsContent.Donate());
+                    contentField.Children.Add(new Views.LauncherSettings("BattleNet"));
                     break;
                 default:
                     TextBlock errorText = new TextBlock();
@@ -81,8 +81,8 @@ namespace Claude
             if (result == true)
             {
                 string filename = openFile.FileName;
-                dynamic userData = Computer.ReadUserData();
-                Computer.ChangeUserData(data.Item2, filename);
+                dynamic userData = FileIn.ReadUserData();
+                FileOut.ChangeUserData(data.Item2, filename);
                 text.Text = filename;
             }
         }

@@ -33,7 +33,7 @@ namespace Claude.Views
             rightDetails.Height = dimensions.height - 250;
 
             // Header image, Grid[1, 0]
-            try { headerPic.Source = new BitmapImage(new Uri(Computer.CachePath($"{game.Id}.jpg"))); }
+            try { headerPic.Source = new BitmapImage(new Uri($"{FilePaths.cache}/{game.Id}.jpg")); }
             catch { headerPic.Source = new BitmapImage(new Uri(@"pack://application:,,,/Resources/SteamHolder.jpg", UriKind.Absolute)); }
             Color bgColor = ControlBuilder.BoxArtAverage((BitmapImage)headerPic.Source);
             leftDetails.Background = new SolidColorBrush(bgColor);

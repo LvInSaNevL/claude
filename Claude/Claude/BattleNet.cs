@@ -48,7 +48,7 @@ namespace Claude
         public static List<Computer.Game> InstalledGames()
         {
             List<Computer.Game> games = new List<Computer.Game>();
-            dynamic userData = Computer.ReadUserData();
+            dynamic userData = FileIn.ReadUserData();
             var userDirs = userData.SelectToken("BattleNet.install");
 
             foreach (string dir in userDirs)

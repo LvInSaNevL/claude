@@ -24,7 +24,7 @@ namespace Claude.Views
     {
         public LauncherSettings(string launcher)
         {
-            dynamic data = Computer.ReadUserData();
+            dynamic data = FileIn.ReadUserData();
             dynamic launcherData = data[launcher];
 
             InitializeComponent();
@@ -51,7 +51,7 @@ namespace Claude.Views
 
             Expander presenter = new Expander();
             StackPanel gamesStack = new StackPanel() { Orientation = Orientation.Vertical };
-            List<Computer.Game> games = Computer.ReadUserGames();
+            List<Computer.Game> games = FileIn.ReadUserGames();
             for (int i = 0; i < 5; i++)
             {
                 gamesStack.Children.Add(new TextBlock() { Text =games[i].Title.ToString() });
@@ -80,8 +80,8 @@ namespace Claude.Views
             if (result == true)
             {
                 string filename = openFile.FileName;
-                dynamic userData = Computer.ReadUserData();
-                Computer.ChangeUserData(data.Item2, filename);
+                dynamic userData = FileIn.ReadUserData();
+                FileOut.ChangeUserData(data.Item2, filename);
                 text.Text = filename;
             }
         }

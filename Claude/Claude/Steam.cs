@@ -42,7 +42,7 @@ namespace Claude
                                 Id = currentID
                             };
 
-                            Computer.TempDownload($"https://store.steampowered.com/api/appdetails?appids={currentID}", $"steamapps/{currentID}.json");
+                            FileOut.TempDownload($"https://store.steampowered.com/api/appdetails?appids={currentID}", $"steamapps/{currentID}.json");
                             try
                             {
                                 Uri test = new Uri($"{Directory.GetCurrentDirectory()}/cache/steamapps/{currentID}.json");
@@ -57,7 +57,7 @@ namespace Claude
                             }
                             catch (Exception) { currentGame.Title = $"Steam Utility - {currentID}"; }
 
-                            Computer.TempDownload($"https://cdn.akamai.steamstatic.com/steam/apps/{bits[0].Replace("\"", "")}/header.jpg", bits[0].Replace("\"", "") + ".jpg");
+                            FileOut.TempDownload($"https://cdn.akamai.steamstatic.com/steam/apps/{bits[0].Replace("\"", "")}/header.jpg", bits[0].Replace("\"", "") + ".jpg");
 
                             appList.Add(currentGame);
                         }
@@ -93,7 +93,7 @@ namespace Claude
         {
             try
             {
-                JToken token = Computer.ReadUserData().SelectToken("Steam.exe");
+                JToken token = FileIn.ReadUserData().SelectToken("Steam.exe");
                 return token.ToString();
             }
             catch { }
