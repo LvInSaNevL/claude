@@ -14,14 +14,16 @@
             <TextBlock>Installer Location: </TextBlock>
             <TextBlock x:Name="CurrentExeLoc" />
             <Button x:Name="ExeChangeButt"
-                    Content="Change" />
+                    Content="Change"
+                    Click="ChangeExePathClick" />
         </StackPanel>
         <StackPanel x:Name="GameDirs"
                     Orientation="Vertical">
             <StackPanel x:Name="IndividualDirs"
                         Orientation="Vertical" />
             <Button x:Name="AddDirButt"
-                    Content="Add" />
+                    Content="Add another directory" 
+                    Click="AddGameDirClick" />
         </StackPanel>
     </StackPanel>
 </UserControl>

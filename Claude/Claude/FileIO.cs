@@ -67,7 +67,7 @@ namespace Claude
             }
         }
 
-        public static object ChangeUserData(string target, string newVal)
+        public static object ChangeUserData(string target, object newVal)
         {
             string fullPath = FilePaths.resources("UserData.json");
 
@@ -78,7 +78,7 @@ namespace Claude
                     dynamic data = FileIn.ReadUserData();
 
                     JToken token = data.SelectToken(target);
-                    token.Replace(newVal);
+                    token.Replace((JToken)newVal);
                     using (StreamWriter writer = File.CreateText(fullPath))
                     {
                         string stringData = JsonConvert.SerializeObject(data);

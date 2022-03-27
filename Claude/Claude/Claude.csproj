@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
-    <UseWPF>true</UseWPF>
+    <UseWPF>True</UseWPF>
     <Authors>Lv_InSaNe_vL</Authors>
     <Description>Play any game, from any service, anytime</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -12,6 +12,7 @@
     <PackageIcon></PackageIcon>
     <PackageIconUrl />
     <RepositoryUrl>https://github.com/LvInSaNevL/claude</RepositoryUrl>
+    <UseWindowsForms>True</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,16 +34,24 @@
   </ItemGroup>
 
   <ItemGroup>
+    <COMReference Include="{215d64d2-031c-33c7-96e3-61794cd1ee61}">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>4</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>215d64d2-031c-33c7-96e3-61794cd1ee61</Guid>
+    </COMReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Cake.Powershell" Version="1.0.1" />
     <PackageReference Include="Gameloop.Vdf" Version="0.6.1" />
     <PackageReference Include="Gameloop.Vdf.JsonConverter" Version="0.2.1" />
     <PackageReference Include="Google.Protobuf" Version="3.19.4" />
     <PackageReference Include="IdentityModel" Version="5.2.0" />
     <PackageReference Include="IdentityModel.OidcClient" Version="4.0.0" />
-    <PackageReference Include="System.Collections" Version="4.3.0" />
     <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
   </ItemGroup>
-
+	
   <ItemGroup>
     <Reference Include="TACTLib">
       <HintPath>..\..\..\TACTLib\TACTLib\bin\Debug\net5.0\TACTLib.dll</HintPath>

@@ -24,7 +24,8 @@ namespace Claude.Views
         public GameDetails(Computer.Game game, (double width, double height) dimensions)
         {
             InitializeComponent();
-            JObject gameInfo = Steam.Details(game.Id);
+            List<Computer.Game> allGames = FileIn.ReadUserGames();
+            Computer.Game gameInfo = allGames.Find(x => x.Id == game.Id);
 
             // Setting sizes
             leftDetails.Width = dimensions.width * 0.6;
@@ -41,7 +42,7 @@ namespace Claude.Views
 
             // Thumbnails
             List<JObject> thumbs = new List<JObject>();
-            foreach (JObject item in gameInfo["screenshots"])
+            foreach (JObject item in gameInfo.Screenshots)
             {
                 thumbs.Add(item);
             }

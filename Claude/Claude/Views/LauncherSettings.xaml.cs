@@ -1,17 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
 
@@ -31,25 +21,26 @@ namespace Claude.Views
 
             LauncherTitle.Text = launcher;
             CurrentExeLoc.Text = launcherData["exe"];
+            ExeChangeButt.Tag = launcher;
+            AddDirButt.Tag = launcher;
 
             for (int i = 0; i < launcherData["install"].Count; i++)
             {
                 string test = launcherData["install"][i].ToString();
-                IndividualDirs.Children.Add(DirPanel(i, test));
+                IndividualDirs.Children.Add(DirPanel(i, test, launcher));
             }
         }
 
-        private StackPanel DirPanel(int count, string path)
+        private StackPanel DirPanel(int count, string path, string launcher)
         {
-            StackPanel panel = new StackPanel() { Orientation = Orientation.Horizontal };
-            panel.Children.Add(new TextBlock() { Text = $"{count.ToString()}: " });
+            StackPanel dirStack = new StackPanel() 
+            { 
+                Name = $"dirStack_{count}", 
+                Orientation = Orientation.Horizontal, 
+                VerticalAlignment = VerticalAlignment.Top 
+            };            
 
-            StackPanel dirStack = new StackPanel() { Orientation = Orientation.Horizontal };
-            dirStack.Children.Add(new TextBlock() { Text = $"{count.ToString()}: {path}" });
-            dirStack.Children.Add(new Button() { Content = "Remove" });
-            panel.Children.Add(dirStack);
-
-            Expander presenter = new Expander();
+            Expander presenter = new Expander() { Name = "presenter", Header = $"{count.ToString()}: {path}" };
             StackPanel gamesStack = new StackPanel() { Orientation = Orientation.Vertical };
             List<Computer.Game> games = FileIn.ReadUserGames();
             for (int i = 0; i < 5; i++)
@@ -57,16 +48,25 @@ namespace Claude.Views
                 gamesStack.Children.Add(new TextBlock() { Text =games[i].Title.ToString() });
             }
             presenter.Content = gamesStack;
-            panel.Children.Add(presenter);
+            dirStack.Children.Add(presenter);
 
-            return panel;
+            Button removeButt = new Button() 
+            { 
+                Name = $"removeButt_{count}", 
+                Content = "Remove", 
+                MaxHeight=20,
+                Tag = launcher
+            };
+            removeButt.Click += RemoveGameDirClick;
+            dirStack.Children.Add(removeButt);
+
+            return dirStack;
         }
 
-        public static void ChangeExePathClick(object sender, RoutedEventArgs e)
+        void ChangeExePathClick(object sender, RoutedEventArgs e)
         {
             var item = sender as Button;
-            (TextBlock, string) data = ((TextBlock, string))item.Tag;
-            TextBlock text = data.Item1;
+            string targetLauncher = item.Tag as string;
 
             OpenFileDialog openFile = new OpenFileDialog()
             {
@@ -80,17 +80,60 @@ namespace Claude.Views
             if (result == true)
             {
                 string filename = openFile.FileName;
-                dynamic userData = FileIn.ReadUserData();
-                FileOut.ChangeUserData(data.Item2, filename);
-                text.Text = filename;
+                FileOut.ChangeUserData($"{targetLauncher}.exe", filename);
+                CurrentExeLoc.Text = filename;
             }
         }
 
-
-        private struct LauncherConfig
+        void AddGameDirClick(object sender, RoutedEventArgs e)
         {
-            public string LauncherLoc { get; set; }
-            public string[] InstallDirs { get; set; }
+            var item = sender as Button;
+            string targetLauncher = (string)item.Tag;
+
+            System.Windows.Forms.FolderBrowserDialog openDir = new System.Windows.Forms.FolderBrowserDialog()
+            {
+                ShowNewFolderButton = false
+            };
+            var result = openDir.ShowDialog();
+
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                string filename = openDir.SelectedPath;
+
+                dynamic userData = FileIn.ReadUserData();
+                var dirs = userData[targetLauncher]["install"];
+
+                if (!dirs.Contains(filename))
+                {
+                    dirs.Add(filename);
+                    FileOut.ChangeUserData($"{targetLauncher}.install", dirs);
+                    IndividualDirs.Children.Add(DirPanel(dirs.Count, filename, targetLauncher));
+                }
+            }
+        }
+
+        void RemoveGameDirClick(object sender, RoutedEventArgs e)
+        {
+            var item = sender as Button;
+            string launcher = (string)item.Tag;
+
+            StackPanel parent = (StackPanel)item.Parent;
+            Expander children = (Expander)parent.Children[0];
+            string target = children.Header.ToString().Split(": ")[1];
+
+            dynamic userData = FileIn.ReadUserData();
+            var dirs = userData[launcher]["install"];
+
+            for(int i = 0; i < dirs.Count; i++)
+            {
+                if (dirs[i] == target)
+                {
+                    dirs.RemoveAt(i);
+                    FileOut.ChangeUserData($"{launcher}.install", dirs);
+                    IndividualDirs.Children.Remove(parent);
+                    IndividualDirs.UpdateLayout();
+                }
+            }
         }
     }
 }

@@ -31,6 +31,8 @@ namespace Claude
             Directory.CreateDirectory(FilePaths.cache);
             Directory.CreateDirectory(FilePaths.cache);
 
+            GetGames();
+
             bool forceInstaller = false;
             if (forceInstaller)
             {

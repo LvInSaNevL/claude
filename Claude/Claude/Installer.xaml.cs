@@ -47,24 +47,26 @@ namespace Claude
             // Info Text
             ContentField.Children.Add(new TextBlock() { Text = "Just click below" });
 
-            // Steam
-            ContentField.Children.Add(new Views.LauncherSettings("Steam"));
-            //ContentField.Children.Add(LauncherDropDown("Steam",
-            //                                           "Steam",
-            //                                           "steam"));
-            // Battle.Net
-            ContentField.Children.Add(LauncherDropDown("Battle.Net",
-                                                       "BattleNet",
-                                                       "Battle.net Launcher"));
-            // Origin
-            ContentField.Children.Add(LauncherDropDown("Origin",
-                                                       "Origin",
-                                                       "Origin"));
-            // Ubisoft
-            ContentField.Children.Add(LauncherDropDown("Ubisoft Connect",
-                                                       "Ubisoft",
-                                                       "UbisoftConnect"));
-                      
+            String[] launcherCodes = new string[]
+            {
+                "Steam",
+                "BattleNet",
+                "Origin",
+                "Ubisoft"
+            };
+
+            foreach (string launcherCode in launcherCodes)
+            {
+                Expander dropStack = new Expander()
+                {
+                    Name = launcherCode,
+                    ExpandDirection = ExpandDirection.Down,
+                    Header = launcherCode
+                };
+
+                dropStack.Content = new Views.LauncherSettings(launcherCode);
+                ContentField.Children.Add(dropStack);
+            }                      
 
             NextButton.Click += Others;
             PreviousButton.Click += Welcome;
@@ -131,30 +133,6 @@ namespace Claude
             window.Show();
 
             this.Close();
-        }
-
-        private StackPanel LauncherDropDown(string launcher, string shortName, string executable)
-        {
-            StackPanel dropStack = new StackPanel() { Orientation = Orientation.Vertical };
-            dropStack.Children.Add(new TextBlock() { Text = $"{launcher}" });
-
-            StackPanel launcherLoc = new StackPanel() { Orientation = Orientation.Horizontal };
-            launcherLoc.Children.Add(new TextBlock() { Text = "Installer Location: " });
-            TextBlock installLoc = new TextBlock() { Text = InstallLocation(shortName) };
-            launcherLoc.Children.Add(installLoc);
-            Button changePathButton = new Button() { Content = "Change", Tag = (installLoc, $"{shortName}.exe") };
-            changePathButton.Click += ChangeExePath;
-            launcherLoc.Children.Add(changePathButton);
-            dropStack.Children.Add(launcherLoc);
-
-            StackPanel installLocs = new StackPanel() { Orientation = Orientation.Vertical };
-            installLocs.Children.Add(new TextBlock() { Text = "Install Directories: " });
-            Button addButton = new Button() { Content = "Add install location", Tag = (installLocs, $"{shortName}.install", shortName) };
-            addButton.Click += AddInstallLoc;
-            installLocs.Children.Add(addButton);
-            dropStack.Children.Add(installLocs);
-
-            return dropStack;
         }
 
         private void AddInstallLoc(object sender, RoutedEventArgs e)
