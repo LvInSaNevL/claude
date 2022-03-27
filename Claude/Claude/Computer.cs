@@ -114,6 +114,7 @@ namespace Claude
 
             // Organizing and saving everything before returning
             var sortedGames = allGames.OrderBy(Game => Game.Title);
+            foreach (Game game in sortedGames) { FileOut.TempDownload(game.Thumbnail, $"{game.Id}.jpg"); }
             return sortedGames.ToList<Game>();
         }
 

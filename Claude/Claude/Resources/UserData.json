@@ -1,9 +1,9 @@
 {
   "claude": {},
-  "Steam": {
-    "exe": "",
-    "install": ["D:\\SteamLibrary"]
-  },
+    "Steam": {
+        "exe": "",
+        "install": ["C:\\Program Files\\Steam\\steamapps\\"]
+    },
   "BattleNet": {
     "exe": "",
     "install": []

@@ -41,20 +41,15 @@ namespace Claude.Views
             rightDetails.Background = new SolidColorBrush(bgColor);
 
             // Thumbnails
-            List<JObject> thumbs = new List<JObject>();
-            foreach (JObject item in gameInfo.Screenshots)
-            {
-                thumbs.Add(item);
-            }
             bigThumbnail.MaxHeight = (dimensions.height - 250) * 0.60;
-            BigThumbnailData(bigThumbnail, thumbs[0]["path_full"].ToString());
+            BigThumbnailData(bigThumbnail, gameInfo.Thumbnail);
 
             // Little thumbnails
             thumbStack.MaxHeight = (dimensions.height * 0.10);
-            for (int i = 0; i < thumbs.Count; i++)
+            for (int i = 0; i < gameInfo.Screenshots.Length; i++)
             {
                 BitmapImage littleThumb = new BitmapImage();
-                try { littleThumb = new BitmapImage(new Uri(thumbs[i]["path_thumbnail"].ToString())); }
+                try { littleThumb = new BitmapImage(new Uri(gameInfo.Screenshots[i])); }
                 catch { littleThumb = new BitmapImage(new Uri(@"pack://application:,,,/Resources/SteamHolder.jpg", UriKind.Absolute)); }
                 Image littleThumbnail = new Image()
                 {
@@ -64,7 +59,7 @@ namespace Claude.Views
                 Button littleButton = new Button()
                 {
                     Content = littleThumbnail,
-                    Tag = (bigThumbnail, thumbs[i]["path_full"].ToString())
+                    Tag = (bigThumbnail, gameInfo.Screenshots[i])
 
                 };
                 littleButton.Click += LittleThumbnailSwitcher;

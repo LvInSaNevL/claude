@@ -31,9 +31,7 @@ namespace Claude
 
                     if(Banned(currentID)) { continue; }
                     else
-                    {
-                        FileOut.TempDownload($"https://cdn.akamai.steamstatic.com/steam/apps/{currentID}/header.jpg", $"{currentID}.jpg");
-
+                    {       
                         appList.Add(new Computer.Game()
                         {
                             Id = currentID,
