@@ -100,7 +100,7 @@ namespace Claude
             allGames.AddRange(FileIn.ReadUserGames());
 
             // Adding individual launchers
-            lilGames.AddRange(Steam.InstalledGames());
+            lilGames.AddRange(Steam.Installed());
             lilGames.AddRange(BattleNet.InstalledGames());
 
             // And adding any new games

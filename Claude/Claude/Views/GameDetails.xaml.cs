@@ -68,13 +68,9 @@ namespace Claude.Views
             }
 
             // Game launchers
-            Button steamButton = ControlBuilder.SteamButton(game.Id);
+            Button steamButton = ControlBuilder.LauncherButton(game.Id, game.Launcher);
             steamButton.MaxHeight = (dimensions.height * 0.12);
             launcherButtons.Children.Add(steamButton);
-
-            Button battleButton = ControlBuilder.BattleNetButton(game.Id);
-            battleButton.MaxHeight = (dimensions.height * 0.12);
-            launcherButtons.Children.Add(battleButton);
 
             // Game title, Grid[1, 1]
             gameTitle.Text = game.Title;

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Claude
@@ -15,28 +16,32 @@ namespace Claude
     {
         private static readonly string baseLocation = "C:\\Program Files (x86)\\Steam";
         
-        public static List<Computer.Game> InstalledGames()
+        public static List<Computer.Game> Installed()
         {
-            string installList = baseLocation + "\\steamapps\\libraryfolders.vdf";
-            VProperty rawFolders = VdfConvert.Deserialize(File.ReadAllText(installList));
-            JToken libraryFolders = rawFolders.ToJson().Last;
-
+            var installDirs = FileIn.ReadUserData()["Steam"]["install"];
             List<Computer.Game> appList = new List<Computer.Game>();
-            for (int s = 0; s < (libraryFolders.Count() - 1); s++)
-            {
-                foreach (var nowGame in libraryFolders[s.ToString()]["apps"])
-                {
-                    string[] bits = nowGame.ToString().Split(":");
-                    string currentID = bits[0].Replace("\"", "");
 
-                    if(Banned(currentID)) { continue; }
-                    else
-                    {       
-                        appList.Add(new Computer.Game()
+            foreach (string nowDir in installDirs)
+            {
+                string[] files = Directory.GetFiles(nowDir);
+                var regex = new Regex(@"^appmanifest_(.*).acf$");
+                foreach (string file in files)
+                {
+                    if (regex.IsMatch(Path.GetFileName(file)))
+                    {
+                        VProperty rawFile = VdfConvert.Deserialize(File.ReadAllText(file));
+                        JToken parsed = rawFile.ToJson().Last;
+
+                        if (Banned(parsed["appid"].ToString())) { continue; }
+                        else
                         {
-                            Id = currentID,
-                            Launcher = "Steam"
-                        });
+                            appList.Add(new Computer.Game()
+                            {
+                                Id = parsed["appid"].ToString(),
+                                Launcher = "Steam"
+                            });
+                        }
+
                     }
                 }
             }

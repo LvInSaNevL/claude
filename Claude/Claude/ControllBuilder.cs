@@ -98,30 +98,15 @@ public class ControlBuilder
         };
     }
 
-    public static Button SteamButton(string id)
+    public static Button LauncherButton(string id, string launcher)
     {
         Image launcherImage = new Image();
-        launcherImage.Source = new BitmapImage(new Uri(@"pack://application:,,,/Claude;component/Resources/SteamHolder.jpg", UriKind.Absolute));
+        launcherImage.Source = new BitmapImage(new Uri($"pack://application:,,,/Claude;component/Resources/{launcher}Holder.jpg", UriKind.Absolute));
         Button steamButton = new Button()
         {
             Width = launcherImage.Width,
             Content = launcherImage,
-            ToolTip = "Steam",
-            Tag = id
-        };
-        steamButton.Click += MainWindow.LauncherButton;
-
-        return steamButton;
-    }
-    public static Button BattleNetButton(string id)
-    {
-        Image launcherImage = new Image();
-        launcherImage.Source = new BitmapImage(new Uri(@"pack://application:,,,/Claude;component/Resources/BattleNetHolder.jpg", UriKind.Absolute));
-        Button steamButton = new Button()
-        {
-            Width = launcherImage.Width,
-            Content = launcherImage,
-            ToolTip = "Battle.Net",
+            ToolTip = launcher,
             Tag = id
         };
         steamButton.Click += MainWindow.LauncherButton;
