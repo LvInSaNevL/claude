@@ -42,19 +42,17 @@ namespace Claude.Views
             else
             {
                 var children = IndividualGames.Children;
-                bool found = false;
                 foreach (StackPanel child in children)
                 {
-                    var childTitle = (TextBlock)child.FindName("titleField");
+                    var childTitle = child.Children.OfType<TextBlock>().FirstOrDefault();
                     if (childTitle.Text.Contains(target.Title))
                     {
                         IndividualGames.Children.Remove(child);
-                        found = true;
-                    }
-                    else if (found)
-                    {
-                        int newCount = IndividualGames.Children.IndexOf(child);
-                        childTitle.Text = $"{newCount}: {target.Title}";
+                        foreach (DataTypes.Game game in FileIn.ReadUserGames())
+                        {
+                            if (game.Launcher == "Others") { UpdateGamesListing(game, true); }
+                        }
+                        return;
                     }
                 }
             }
