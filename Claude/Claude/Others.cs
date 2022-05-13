@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using Newtonsoft.Json;
 
 namespace Claude
 {
     internal class Others
     {
-        public static List<Computer.Game> Install(Computer.Game game)
+        public static List<DataTypes.Game> Install(DataTypes.Game game)
         {
-            List<Computer.Game> userGames = FileIn.ReadUserGames();
+            List<DataTypes.Game> userGames = FileIn.ReadUserGames();
             userGames.Add(game);
             var sortedGames = userGames.OrderBy(Game => Game.Title);
 
@@ -24,6 +23,11 @@ namespace Claude
             }
 
             return sortedGames.ToList();
+        }
+
+        public static void Launch(string target)
+        {
+            System.Diagnostics.Process.Start(target);
         }
     }
 }

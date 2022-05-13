@@ -42,7 +42,7 @@ namespace Claude.Views
 
             Expander presenter = new Expander() { Name = "presenter", Header = $"{count.ToString()}: {path}" };
             StackPanel gamesStack = new StackPanel() { Orientation = Orientation.Vertical };
-            List<Computer.Game> games = FileIn.ReadUserGames();
+            List<DataTypes.Game> games = FileIn.ReadUserGames();
             for (int i = 0; i < 5; i++)
             {
                 gamesStack.Children.Add(new TextBlock() { Text =games[i].Title.ToString() });

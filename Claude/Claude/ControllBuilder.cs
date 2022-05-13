@@ -22,16 +22,18 @@ public class ControlBuilder
                 return "#e45420";
             case "battlenet":
                 return "#0566b0";
+            case "others":
+                return "#14171e";
             default:
                 return "NO VALUE GIVEN";
         }
     }
 
-    public static Button BoxArtButton(Computer.Game game, BitmapImage picture)
+    public static Button BoxArtButton(DataTypes.Game game, BitmapImage picture)
     {
         Button gameButton = new Button
         {
-            Content = game.Id,
+            Content = game,
             Tag = game,            
             Height = 160,
             Width = 345,
@@ -98,19 +100,19 @@ public class ControlBuilder
         };
     }
 
-    public static Button LauncherButton(string id, string launcher)
+    public static Button LauncherButton(DataTypes.Game game)
     {
         Image launcherImage = new Image();
-        launcherImage.Source = new BitmapImage(new Uri($"pack://application:,,,/Claude;component/Resources/{launcher}Holder.jpg", UriKind.Absolute));
-        Button steamButton = new Button()
+        launcherImage.Source = new BitmapImage(new Uri($"pack://application:,,,/Claude;component/Resources/{game.Launcher}Holder.jpg", UriKind.Absolute));
+        Button launcherButton = new Button()
         {
             Width = launcherImage.Width,
             Content = launcherImage,
-            ToolTip = launcher,
-            Tag = id
+            ToolTip = game.Launcher,
+            Tag = game
         };
-        steamButton.Click += MainWindow.LauncherButton;
+        launcherButton.Click += MainWindow.LauncherButtonClick;
 
-        return steamButton;
+        return launcherButton;
     }
 }

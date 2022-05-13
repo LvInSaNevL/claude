@@ -1,15 +1,18 @@
 {
-  "claude": {},
-    "Steam": {
-        "exe": "",
-        "install": [
-            "C:\\Program Files (x86)\\Steam\\steamapps\\",
-            "D:\\SteamLibrary\\steamapps\\"
-        ]
-    },
+  "Claude": {},
+  "Local": {},
+  "Steam": {
+    "exe": "C:Program Files (x86)\\Steam\\steam.exe",
+    "install": [
+      "C:\\Program Files (x86)\\Steam\\steamapps\\",
+      "E:\\SteamLibrary\\steamapps"
+    ]
+  },
   "BattleNet": {
-    "exe": "",
-    "install": []
+    "exe": "C:Program Files (x86)\\Battle.net\\Battle.Net.exe",
+    "install": [
+      "C:\\Program Files (x86)\\Battle.net"
+    ]
   },
   "Origin": {
     "exe": "",

@@ -1,0 +1,23 @@
+{
+    "claude":{},
+    "Steam": {
+        "exe": "",
+        "install": [
+            "C:\\'Program Files (x86)'\\Steam\\steamapps\\"
+        ]
+    },
+    "BattleNet": {
+        "exe": "C:\"Program Files (x86)\"\\Battle.net\\Battle.Net.exe",
+        "install": [
+            "C:\\'Program Files (x86)'\\Battle.net"
+        ]
+    },
+    "Origin": {
+        "exe": "",
+        "install": []
+    },
+    "Ubisoft": {
+        "exe": "",
+        "install": []
+    }
+}

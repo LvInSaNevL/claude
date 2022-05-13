@@ -38,7 +38,7 @@ namespace Claude
                     contentField.Children.Add(new Views.LauncherSettings("BattleNet"));
                     break;
                 case "other":
-                    contentField.Children.Add(new Views.LauncherSettings("BattleNet"));
+                    contentField.Children.Add(new Views.LocalSettings());
                     break;
                 case "donate":
                     contentField.Children.Add(new Views.LauncherSettings("BattleNet"));

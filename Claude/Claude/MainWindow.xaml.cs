@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -21,117 +22,65 @@ namespace Claude
 
             SplashScreen splashScreen = new SplashScreen("Resources\\Splashscreen.png");
             splashScreen.Show(true);
-            
-
-            Application.Current.MainWindow.WindowState = WindowState.Maximized;
-
 
             this.Loaded += MainWindow_Loaded;
             this.WindowState = WindowState.Maximized;
+
             InitializeComponent();
             splashScreen.Show(false);
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            List<Computer.Game> installedGames = Computer.GetGames();
-
-            StackPanel boxArtStack = new StackPanel() { Orientation = Orientation.Vertical, Name = "boxArtStack" };
-
-            int gridWidth = (int)biggerBoxInstalled.ActualWidth / 345;
-            float gridHeight = (installedGames.Count + 1) / gridWidth + 1;
-
-            int counter = 0;
-            for (int x = 0; x < gridHeight; x++)
-            {
-                // Setting up this row
-                StackPanel fullCurrentRow = new StackPanel() { Orientation = Orientation.Vertical };
-                StackPanel details = new StackPanel()
-                {
-                    Visibility = Visibility.Collapsed,
-                    Name = $"detailStack{x}",
-                    Focusable = true
-                };
-                detailMenus.Add(details);
-                Grid currentRow = new Grid() { Margin = new Thickness { Top = 10, Right = 0, Bottom = 10, Left = 0 } };
-                currentRow.RowDefinitions.Add(new RowDefinition());
-                ColumnDefinition[] columns = new ColumnDefinition[gridWidth];
-
-
-                for (int i = 0; i < gridWidth; i++)
-                {
-                    columns[i] = new ColumnDefinition();
-                    currentRow.ColumnDefinitions.Add(columns[i]);
-                }
-
-                for (int y = 0; y < gridWidth; y++)
-                {
-                    counter++;
-                    Computer.Game nowgame = new Computer.Game();
-                    try { nowgame = installedGames[counter - 1]; }
-                    catch (ArgumentOutOfRangeException) { break; }
-
-                    // Adding button image to big box art
-                    BitmapImage target = new BitmapImage();
-                    try { target = new BitmapImage(new Uri($"{FilePaths.cache}/{nowgame.Id}.jpg")); }
-                    catch { target = new BitmapImage(new Uri($"pack://application:,,,/Resources/{nowgame.Launcher}Holder.jpg", UriKind.Absolute)); }
-
-                    nowgame.DetailFrame = details;
-                    Button gameButton = ControlBuilder.BoxArtButton(nowgame, target);
-                    gameButton.Click += GameButtonClick;
-                    gameButton.MouseDoubleClick += LauncherButton;
-                    Grid.SetColumn(gameButton, y);
-
-                    currentRow.Children.Add(gameButton);
-
-                    // Adding text to small box art
-                    Button gameText = new Button
-                    {
-                        Tag = nowgame.Id,
-                        Content = nowgame.Title,
-                        Height = 50,
-                        ToolTip = $"{nowgame.Launcher}: {nowgame.Id}"
-                    };
-                    gameText.Click += GameButtonClick;
-                    gameText.MouseDoubleClick += LauncherButton;
-
-                    if (nowgame.Launcher == "Steam") { SteamExpanderStack.Children.Add(gameText); }
-                    if (nowgame.Launcher == "BattleNet") { BattleNetExpanderStack.Children.Add(gameText); }
-                }
-
-                fullCurrentRow.Children.Add(currentRow);
-                fullCurrentRow.Children.Add(details);
-                boxArtStack.Children.Add(fullCurrentRow);
-            }
-
-            biggerBoxInstalled.Content = boxArtStack;
-        }
+        /// <summary>
+        /// Helper class to be able to call in the games view
+        /// </summary>
+        public static StackPanel stackPanel { get; }
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e) => Views.GameViewer.BigBoxArt(this);
 
 
         /// <summary>
         /// Start button handlers 
         /// </summary>
-        private List<StackPanel> detailMenus = new List<StackPanel>();
+        public List<StackPanel> detailMenus = new List<StackPanel>();
         public void GameButtonClick(object sender, RoutedEventArgs e)
         {
+            DataTypes.Game button = (DataTypes.Game)(sender as Button).Tag;
+            StackPanel details = button.DetailFrame;
+
+            // Local game check
+            if (button.Launcher == "Others") { Others.Launch(button.Path); return; }
+
             // Cleaning up old menus
             foreach (StackPanel menu in detailMenus)
             {
                 menu.Children.Clear();
                 menu.Visibility = Visibility.Hidden;
             }
-
-
-            Computer.Game button = (Computer.Game)(sender as Button).Tag;
-            StackPanel details = button.DetailFrame;
-
+                     
             details.Children.Add(new Views.GameDetails(button, (biggerBoxInstalled.ActualWidth, biggerBoxInstalled.ActualHeight)));
             details.Visibility = Visibility.Visible;
             details.BringIntoView();
         }
 
-        public static void LauncherButton(object sender, RoutedEventArgs e) { Steam.Launch((sender as Button).Tag.ToString()); }
-        void BattleNetLauncherButton(object sender, RoutedEventArgs e) { BattleNet.Launch((sender as Button).Tag.ToString()); }
+        public static void LauncherButtonClick(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+            DataTypes.Game game = (DataTypes.Game)button.Tag;
+
+            switch (game.Launcher)
+            {
+                case "Steam":
+                    Steam.Launch(game.Id);
+                    break;
+                case "BattleNet":
+                    BattleNet.Launch(game.Id);
+                    break;
+                case "Others":
+                    Others.Launch(game.Path);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
 
         public static void GameDetailThumbnailSwitcher(object sender, RoutedEventArgs e)
         {

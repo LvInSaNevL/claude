@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="Claude.Views.LocalSettings"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Claude.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="420" d:DesignWidth="660">
+    <StackPanel x:Name="MainStack"
+                Orientation="Vertical">
+        <TextBlock x:Name="LocalHeader" Text="Install and play other, local games!" />
+        <StackPanel x:Name="Games"
+                    Orientation="Vertical">
+            <StackPanel x:Name="IndividualGames"
+                        Orientation="Vertical">
+                <TextBlock x:Name="NullHolder"
+                           Visibility="Collapsed" />
+            </StackPanel>
+            <Button x:Name="AddGameButt"
+                Content="Add another game!" 
+                Click="AddGameClick" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

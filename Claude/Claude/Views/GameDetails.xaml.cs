@@ -21,11 +21,11 @@ namespace Claude.Views
     /// </summary>
     public partial class GameDetails : UserControl
     {
-        public GameDetails(Computer.Game game, (double width, double height) dimensions)
+        public GameDetails(DataTypes.Game game, (double width, double height) dimensions)
         {
             InitializeComponent();
-            List<Computer.Game> allGames = FileIn.ReadUserGames();
-            Computer.Game gameInfo = allGames.Find(x => x.Id == game.Id);
+            List<DataTypes.Game> allGames = FileIn.ReadUserGames();
+            DataTypes.Game gameInfo = allGames.Find(x => x.Id == game.Id);
 
             // Setting sizes
             leftDetails.Width = dimensions.width * 0.6;
@@ -68,7 +68,7 @@ namespace Claude.Views
             }
 
             // Game launchers
-            Button steamButton = ControlBuilder.LauncherButton(game.Id, game.Launcher);
+            Button steamButton = ControlBuilder.LauncherButton(game);
             steamButton.MaxHeight = (dimensions.height * 0.12);
             launcherButtons.Children.Add(steamButton);
 

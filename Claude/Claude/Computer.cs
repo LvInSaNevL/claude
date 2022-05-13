@@ -15,7 +15,7 @@ namespace Claude
         public static string Terminal(string command)
         {
             Process process = new Process();
-            ProcessStartInfo startInfo = new ProcessStartInfo();
+            ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe");
             startInfo.Arguments = command;
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardOutput = true;
@@ -25,16 +25,12 @@ namespace Claude
             return process.StandardOutput.ReadToEnd().ToString();
         }
 
-        public static void Initialize()
+        public static void Initialize(string[] args)
         {
-
             Directory.CreateDirectory(FilePaths.cache);
             Directory.CreateDirectory(FilePaths.cache);
 
-            GetGames();
-
-            bool forceInstaller = false;
-            if (forceInstaller)
+            if (args.Contains("--installer")) 
             {
                 Installer wizard = new Installer();
                 wizard.Show();
@@ -50,6 +46,8 @@ namespace Claude
                     return;
                 }
 
+                GetGames();
+
                 MainWindow main = new MainWindow();
                 main.Show();
             }
@@ -60,19 +58,19 @@ namespace Claude
             System.Windows.Application.Current.Shutdown();
         }
                 
-        public static List<Game> CallClaude(List<Game> games)
+        public static List<DataTypes.Game> CallClaude(List<DataTypes.Game> games)
         {
-            List<LilGame> list = new List<LilGame>();
-            foreach (Game game in games)
+            List<DataTypes.LilGame> list = new List<DataTypes.LilGame>();
+            foreach (DataTypes.Game game in games)
             {
-                list.Add(new LilGame()
+                list.Add(new DataTypes.LilGame()
                 {
                     Id = game.Id,
                     Launcher = game.Launcher
                 });
             }
             string content = JsonConvert.SerializeObject(list);
-            if (content == null) { return new List<Game>(); }
+            if (content == null) { return new List<DataTypes.Game>(); }
 
             try
             {
@@ -81,96 +79,45 @@ namespace Claude
                     client.Headers[HttpRequestHeader.ContentType] = "application/json";
                     var result = client.UploadString("https://localhost:44337/getgames", content);
 
-                    List<Game> resultGames = JsonConvert.DeserializeObject<List<Game>>(result);
+                    List<DataTypes.Game> resultGames = JsonConvert.DeserializeObject<List<DataTypes.Game>>(result);
                     resultGames.RemoveAll(x => x.Title == "null");
 
                     return resultGames;
                 }
             }
-            catch { return new List<Game>(); }
+            catch { return new List<DataTypes.Game>(); }
         }
 
-        public static List<Game> GetGames()
+        public static List<DataTypes.Game> GetGames()
         {
             // Final list of all games
-            List<Game> allGames = new List<Game>();
-            List<Game> lilGames = new List<Game>();
+            List<DataTypes.Game> allGames = new List<DataTypes.Game>();
+            List<DataTypes.Game> lilGames = new List<DataTypes.Game>();
 
             // Read from user data file
-            allGames.AddRange(FileIn.ReadUserGames());
+            try { allGames.AddRange(FileIn.ReadUserGames()); }
+            catch { ErrorHandling.Logger(new NullValueHandling()); }
 
             // Adding individual launchers
             lilGames.AddRange(Steam.Installed());
             lilGames.AddRange(BattleNet.InstalledGames());
 
             // And adding any new games
-            List<Game> diffGames = lilGames.Where(l => !allGames.Select(a => a.Id).Contains(l.Id)).ToList();
-            List<Game> newGames = CallClaude(diffGames);
-            foreach (Game newGame in newGames)
+            List<DataTypes.Game> diffGames = lilGames.Where(l => !allGames.Select(a => a.Id).Contains(l.Id)).ToList();
+            List<DataTypes.Game> newGames = CallClaude(diffGames);
+            foreach (DataTypes.Game newGame in newGames)
             {
                 FileOut.AddUserGames(newGame);
                 allGames.Add(newGame); 
             }
 
             // Organizing and saving everything before returning
-            var sortedGames = allGames.OrderBy(Game => Game.Title);
-            foreach (Game game in sortedGames) { FileOut.TempDownload(game.Thumbnail, $"{game.Id}.jpg"); }
-            return sortedGames.ToList<Game>();
-        }
-
-        public struct LilGame
-        {
-            public string Id { get; set; }
-            public string Launcher { get; set; }
-        }
-
-        public struct Game
-        {
-            /// <summary>
-            /// The launcher code for the game
-            /// </summary>
-            public string Id { get; set; }
-            /// <summary>
-            /// The "normal" human readable name
-            /// </summary>
-            public string Title { get; set; }
-            /// <summary>
-            /// A short little description of the game
-            /// </summary>
-            public string About { get; set; }
-            /// <summary>
-            /// The date the game released, formatted in RFC1123 without timestamp
-            /// </summary>
-            public string Release { get; set; }
-            /// <summary>
-            /// The developer of the game
-            /// </summary>
-            public string Developer { get; set; }
-            /// <summary>
-            /// The publisher of the game
-            /// </summary>
-            public string Publisher { get; set; }
-            /// <summary>
-            /// The launcher claude code for the launcher
-            /// Currently supported: "Steam", "BattleNet", "Other"
-            /// </summary>
-            public string Launcher { get; set; }
-            /// <summary>
-            /// The URL to the main thumbnail
-            /// </summary>
-            public string Thumbnail { get; set; }
-            /// <summary>
-            /// An array of URLs to any promotional images
-            /// </summary>
-            public string[] Screenshots { get; set; }
-            /// <summary>
-            /// Path on disk to executable
-            /// </summary>
-            public string Path { get; set; }
-            /// <summary>
-            /// Which stack panel the game is added to
-            /// </summary>
-            public StackPanel DetailFrame { get; set; }
-        }
+            var sortedGames = allGames.OrderBy(game => game.Title);
+            foreach (DataTypes.Game game in sortedGames) 
+            {
+                if (game.Launcher != "Others") { FileOut.TempDownload(game.Thumbnail, $"{game.Id}.jpg"); }
+            }
+            return sortedGames.ToList<DataTypes.Game>();
+        }        
     }
 }

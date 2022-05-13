@@ -16,10 +16,10 @@ namespace Claude
     {
         private static readonly string baseLocation = "C:\\Program Files (x86)\\Steam";
         
-        public static List<Computer.Game> Installed()
+        public static List<DataTypes.Game> Installed()
         {
             var installDirs = FileIn.ReadUserData()["Steam"]["install"];
-            List<Computer.Game> appList = new List<Computer.Game>();
+            List<DataTypes.Game> appList = new List<DataTypes.Game>();
 
             foreach (string nowDir in installDirs)
             {
@@ -35,7 +35,7 @@ namespace Claude
                         if (Banned(parsed["appid"].ToString())) { continue; }
                         else
                         {
-                            appList.Add(new Computer.Game()
+                            appList.Add(new DataTypes.Game()
                             {
                                 Id = parsed["appid"].ToString(),
                                 Launcher = "Steam"

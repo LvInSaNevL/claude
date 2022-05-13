@@ -2,30 +2,34 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>True</UseWPF>
     <Authors>Lv_InSaNe_vL</Authors>
     <Description>Play any game, from any service, anytime</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/LvInSaNevL/claude</PackageProjectUrl>
     <ApplicationIcon>Logo.ico</ApplicationIcon>
-    <PackageIcon></PackageIcon>
+    <PackageIcon>Logo.png</PackageIcon>
     <PackageIconUrl />
     <RepositoryUrl>https://github.com/LvInSaNevL/claude</RepositoryUrl>
     <UseWindowsForms>True</UseWindowsForms>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Resources\BattlenetHolder.jpg" />
     <None Remove="Resources\Logo\Logo.ico" />
-    <None Remove="Resources\Logo\Logo.png" />
-    <None Remove="Resources\Logo\Logo.png" />
+    <None Remove="Resources\OthersHolder.jpg" />
     <None Remove="Resources\Splashscreen.png" />
     <None Remove="Resources\SteamHolder.jpg" />
     <None Remove="Resources\UserGames.json" />
     <None Include="..\..\LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
 
@@ -40,6 +44,12 @@
       <VersionMajor>2</VersionMajor>
       <Guid>215d64d2-031c-33c7-96e3-61794cd1ee61</Guid>
     </COMReference>
+    <COMReference Include="{d37e2a3e-8545-3a39-9f4f-31827c9124ab}">
+      <WrapperTool>tlbimp</WrapperTool>
+      <VersionMinor>4</VersionMinor>
+      <VersionMajor>2</VersionMajor>
+      <Guid>d37e2a3e-8545-3a39-9f4f-31827c9124ab</Guid>
+    </COMReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -49,6 +59,7 @@
     <PackageReference Include="Google.Protobuf" Version="3.19.4" />
     <PackageReference Include="IdentityModel" Version="5.2.0" />
     <PackageReference Include="IdentityModel.OidcClient" Version="4.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
     <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
   </ItemGroup>
 	
@@ -71,6 +82,9 @@
     <Resource Include="Resources\SteamHolder.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+	<Resource Include="Resources\OthersHolder.jpg">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Resource>
     <Resource Include="Resources\UserGames.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
@@ -91,6 +105,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Update="Steam.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -104,6 +123,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <None Update="Resources\Logo\Logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <Page Update="ClaudeSettings.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
@@ -113,6 +143,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Steam.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\LocalSettings.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>

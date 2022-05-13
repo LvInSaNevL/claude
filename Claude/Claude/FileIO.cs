@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -38,7 +37,8 @@ namespace Claude
                 if (resutl == null) { return new NullReferenceException(); }
                 else
                 {
-                    parsedData = JObject.Parse(resutl);
+                    try { parsedData = JObject.Parse(resutl); }
+                    catch (JsonReaderException e) { return null; }
                 }
             }
             catch (FileNotFoundException e) { return new FileNotFoundException(); }
@@ -46,14 +46,18 @@ namespace Claude
             return parsedData;
         }
 
-        public static List<Computer.Game> ReadUserGames()
+        public static List<DataTypes.Game> ReadUserGames()
         {
-            string fullPath = FilePaths.resources("UserGames.json");
-            using StreamReader reader = new StreamReader(fullPath);
-            string result = reader.ReadToEnd().ToString();
-            reader.Dispose();
-            try { return JsonConvert.DeserializeObject<List<Computer.Game>>(result); }
-            catch { return new List<Computer.Game>(); }
+            try
+            {
+                string fullPath = FilePaths.resources("UserGames.json");
+                using StreamReader reader = new StreamReader(fullPath);
+                string result = reader.ReadToEnd().ToString();
+                reader.Dispose();
+
+                return JsonConvert.DeserializeObject<List<DataTypes.Game>>(result);
+            }
+            catch { return new List<DataTypes.Game>(); }
         }
     }
 
@@ -65,6 +69,20 @@ namespace Claude
             {
                 using WebClient client = new WebClient(); client.DownloadFile(new Uri(url), $"{FilePaths.cache}/{filename}");
             }
+        }
+
+        public static string IconDownload(string exePath, string exeName)
+        {
+            string savePath = $"{FilePaths.cache}/{exeName}.jpg";
+
+            if (File.Exists(savePath)) { return savePath; }
+
+            Bitmap icon = Icon.ExtractAssociatedIcon(exePath).ToBitmap();
+            Bitmap strechedIcon = new Bitmap(icon, 460, 216);
+            
+            // Save the file and return the path
+            strechedIcon.Save(savePath);
+            return savePath;
         }
 
         public static object ChangeUserData(string target, object newVal)
@@ -92,7 +110,7 @@ namespace Claude
             catch (Exception e) { return e; }
         }
 
-        public static object AddUserGames(Computer.Game test)
+        public static object AddUserGames(DataTypes.Game test)
         {
             string fullPath = FilePaths.resources("UserGames.json");
 
@@ -100,7 +118,7 @@ namespace Claude
             { 
                 lock (fullPath)
                 {
-                    List<Computer.Game> list = FileIn.ReadUserGames();
+                    List<DataTypes.Game> list = FileIn.ReadUserGames();
                     if (list.Contains(test)) { return false; }
                     else
                     {
@@ -119,7 +137,7 @@ namespace Claude
             catch (Exception e) { return e; }
         }
 
-        public static object RemoveUserGames(Computer.Game test)
+        public static object RemoveUserGames(DataTypes.Game test)
         {
             string fullPath = FilePaths.resources("UserGames.json");
 
@@ -127,7 +145,7 @@ namespace Claude
             {
                 lock (fullPath)
                 {
-                    List<Computer.Game> list = FileIn.ReadUserGames();
+                    List<DataTypes.Game> list = FileIn.ReadUserGames();
                     if (!list.Contains(test)) { return false; }
                     else
                     {

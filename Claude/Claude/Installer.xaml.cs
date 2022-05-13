@@ -2,7 +2,6 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Data.OleDb;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,13 +14,26 @@ namespace Claude
     /// </summary>
     public partial class Installer : Window
     {
-        private readonly string jsonstring = "{\"claude\":{},\"Steam\":{\"exe\":\"\",\"install\":[]},\"BattleNet\":{\"exe\":\"\",\"install\":[]},\"Origin\":{\"exe\":\"\",\"install\":[]},\"Ubisoft\":{\"exe\":\"\",\"install\":[]}}";
+        // The generic empty UserData.json file, in case the file is missing. 
+        private readonly string jsonstring = @"
+                                                {
+                                                  ""claude"": {},
+                                                  ""steam"": {
+                                                        ""exe"": ""C:\\Program Files(x86)\\Steam\\steam.exe"",
+                                                        ""install"": [""C:\\Program Files(x86)\\Steam\\steamapps""]
+                                                  },
+                                                  ""battlenet"": {
+                                                        ""exe"": ""C:\\Program Files(x86)\\Battle.Net\\Battle.Net.exe"",
+                                                        ""install"": [""C:\\Program Files(x86)\\Battle.Net""]
+                                                  }
+                                                }";
+
         private static dynamic jsondata;
-        public static List<Computer.Game> installerGames = new List<Computer.Game>();
+        public static List<DataTypes.Game> installerGames = new List<DataTypes.Game>();
 
         public Installer()
         {
-            jsondata = JObject.Parse(jsonstring);
+            jsondata = FileIn.ReadUserData() ?? JObject.Parse(jsonstring);
             InitializeComponent();
             Welcome();                       
         }
@@ -35,12 +47,14 @@ namespace Claude
             ContentField.Children.Add(new TextBlock() { Text = "We have just a bit of setup to do first though." });
 
             NextButton.Click += Games;
+            PreviousButton.Visibility = Visibility.Collapsed;
             PreviousButton.Click += DoNothing;
         }
 
         private void Games(object sender = null, RoutedEventArgs e = null)
         {
             ContentField.Children.Clear();
+            PreviousButton.Visibility = Visibility.Visible;
 
             // Welcome Text
             ContentField.Children.Add(new TextBlock() { Text = "Here you can add your launchers" });
@@ -68,36 +82,16 @@ namespace Claude
                 ContentField.Children.Add(dropStack);
             }                      
 
-            NextButton.Click += Others;
+            NextButton.Click += OtherPage;
             PreviousButton.Click += Welcome;
         }
 
-        private void Others(object sender = null, RoutedEventArgs e = null)
+        private void OtherPage(object sender = null, RoutedEventArgs e = null)
         {
             ContentField.Children.Clear();
 
-            StackPanel stackPanel = new StackPanel()
-            {
-                Orientation = Orientation.Vertical
-            };
-            stackPanel.Children.Add(new TextBlock() { Text = "Add any other games here: " });
-
-            if (installerGames != null)
-            {
-                foreach (Computer.Game game in installerGames)
-                {
-                    stackPanel.Children.Add(new TextBlock() { Text = game.Title });
-                }
-            }
-            Button addButton = new Button() 
-            { 
-                Content = new TextBlock() { Text = "Add game" },
-                Tag = stackPanel
-            };
-            addButton.Click += AddOtherGame;
-            stackPanel.Children.Add(addButton);
-
-            ContentField.Children.Add(stackPanel);
+            Views.LocalSettings localSettings = new Views.LocalSettings();
+            ContentField.Children.Add(localSettings);
 
             NextButton.Click += Finally;
             PreviousButton.Click += Games;
@@ -113,8 +107,9 @@ namespace Claude
             ContentField.Children.Add(welcomeText);
             ContentField.Children.Add(infoText);
 
+            NextButton.Content = "Start Playing";
             NextButton.Click += EndSetup;
-            PreviousButton.Click += Others;
+            PreviousButton.Click += OtherPage;
         }
 
         private void EndSetup(object sender = null, RoutedEventArgs e = null)
@@ -178,54 +173,8 @@ namespace Claude
             token.Replace(new JArray(newLocations));
 
             ContentField.Children.Remove(data.Item1);
-            Others();
-        }
-
-        private void AddOtherGame(object sender, RoutedEventArgs e)
-        {
-            var item = sender as Button;
-            StackPanel stack = (StackPanel)item.Tag;
-
-            var dialog = new CommonOpenFileDialog();
-            dialog.IsFolderPicker = false;
-            CommonFileDialogResult result = dialog.ShowDialog();
-
-            if (result == CommonFileDialogResult.Ok)
-            {
-                StackPanel newStack = new StackPanel() { Orientation = Orientation.Horizontal };
-                newStack.Children.Add(new TextBlock() { Text = dialog.FileName });
-                Button removeButton = new Button() { Content = "Remove", Tag = (newStack, dialog.FileName) };
-                removeButton.Click += RemoveOtherGame;
-                newStack.Children.Add(removeButton);
-                stack.Children.Insert(stack.Children.Count - 1, newStack);
-
-                Computer.Game game = new Computer.Game()
-                {
-                    Title = dialog.FileName,
-                    Launcher = "Other",
-                    Path = dialog.FileName,
-                };
-                installerGames.Add(game);
-            }
-
-
-        }
-
-        private void RemoveOtherGame(object sender, RoutedEventArgs e)
-        {
-            var item = sender as Button;
-            (StackPanel, string) data = ((StackPanel, string))item.Tag;
-            StackPanel stack = data.Item1;
-
-            for (int i = 0; i < installerGames.Count; i++)
-            {
-                if (installerGames[i].Title == data.Item2)
-                {
-                    installerGames.RemoveAt(i);
-                }
-            }
-            ContentField.Children.Remove(data.Item1);
-        }
+            OtherPage();
+        }               
 
         private static void ChangeExePath(object sender, RoutedEventArgs e)
         {

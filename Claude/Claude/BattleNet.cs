@@ -45,27 +45,26 @@ namespace Claude
             { "zeus", "COD: Black Ops Cold War" }
         };
 
-        public static List<Computer.Game> InstalledGames()
+        public static List<DataTypes.Game> InstalledGames()
         {
-            List<Computer.Game> games = new List<Computer.Game>();
+            List<DataTypes.Game> games = new List<DataTypes.Game>();
             dynamic userData = FileIn.ReadUserData();
             var userDirs = userData.SelectToken("BattleNet.install");
 
             foreach (string dir in userDirs)
             {
-                foreach (string gameDir in Directory.GetDirectories(dir))
-                {
-                    string path = $"{gameDir}\\.product.db";
-                    AgentDatabase handler = new AgentDatabase(path);
-                    var result = handler.Data.ToString();
-                    dynamic data = JObject.Parse(result);
+                if (!Directory.Exists(dir)) { continue; }
 
-                    games.Add(new Computer.Game()
-                    {
-                        Id = data["productInstall"][0]["uid"],
-                        Launcher = "BattleNet"
-                    });                
-                }
+                string path = $"{dir}\\.product.db";
+                AgentDatabase handler = new AgentDatabase(path);
+                var result = handler.Data.ToString();
+                dynamic data = JObject.Parse(result);
+
+                games.Add(new DataTypes.Game()
+                {
+                    Id = data["productInstall"][0]["uid"],
+                    Launcher = "BattleNet"
+                });  
             }
 
 

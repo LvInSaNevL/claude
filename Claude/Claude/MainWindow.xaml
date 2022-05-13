@@ -77,9 +77,20 @@
                               Header="Battle.Net Library">
                         <StackPanel x:Name="BattleNetExpanderStack" />
                     </Expander>
+                    <Expander x:Name="OthersExpander"
+                              ExpandDirection="Down"
+                              IsExpanded="True"
+                              Header="Local Games">
+                        <StackPanel x:Name="OthersExpanderStack" />
+                    </Expander>
                 </StackPanel>
             </ScrollViewer>
-            <ScrollViewer x:Name="biggerBoxInstalled" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Auto" Grid.Column="1" Grid.Row="1" Style="{StaticResource boxArt}">
+            <ScrollViewer x:Name="biggerBoxInstalled" 
+                          x:FieldModifier="public"
+                          VerticalScrollBarVisibility="Hidden" 
+                          HorizontalScrollBarVisibility="Auto" 
+                          Grid.Column="1" Grid.Row="1" 
+                          Style="{StaticResource boxArt}">
             </ScrollViewer>
         </Grid>
     </Grid>
