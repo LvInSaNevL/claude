@@ -74,9 +74,21 @@ namespace Claude.Views
                     gameText.Click += mainWindow.GameButtonClick;
                     gameText.MouseDoubleClick += MainWindow.LauncherButtonClick;
 
-                    if (nowgame.Launcher == "Steam") { mainWindow.SteamExpanderStack.Children.Add(gameText); }
-                    if (nowgame.Launcher == "BattleNet") { mainWindow.BattleNetExpanderStack.Children.Add(gameText); }
-                    if (nowgame.Launcher == "Others") { mainWindow.OthersExpanderStack.Children.Add(gameText); }
+                    if (nowgame.Launcher == "Steam") 
+                    { 
+                        mainWindow.SteamExpanderStack.Children.Add(gameText);
+                        mainWindow.SteamExpander.Visibility = Visibility.Visible;
+                    }
+                    if (nowgame.Launcher == "BattleNet") 
+                    { 
+                        mainWindow.BattleNetExpanderStack.Children.Add(gameText);
+                        mainWindow.BattleNetExpander.Visibility = Visibility.Visible;
+                    }
+                    if (nowgame.Launcher == "Others") 
+                    { 
+                        mainWindow.OthersExpanderStack.Children.Add(gameText);
+                        mainWindow.OthersExpander.Visibility = Visibility.Visible;
+                    }
                 }
 
                 fullCurrentRow.Children.Add(currentRow);

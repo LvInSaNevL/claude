@@ -15,6 +15,7 @@ namespace Claude
         {
             InitializeComponent();
             Keyboard.Focus(this);
+            this.Topmost = true;
             Window parentWindow = GetWindow(this);
             SettingsContentLoader(target);
         }

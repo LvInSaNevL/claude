@@ -67,20 +67,23 @@
                     <Expander x:Name="SteamExpander"
                               ExpandDirection="Down"
                               IsExpanded="True"
-                              Header="Steam Library">
+                              Header="Steam Library"
+                              Visibility="Collapsed">
                         <StackPanel x:Name="SteamExpanderStack"
                                 Orientation="Vertical" />
                     </Expander>
                     <Expander x:Name="BattleNetExpander"
                               ExpandDirection="Down"
                               IsExpanded="True"
-                              Header="Battle.Net Library">
+                              Header="Battle.Net Library"
+                              Visibility="Collapsed">
                         <StackPanel x:Name="BattleNetExpanderStack" />
                     </Expander>
                     <Expander x:Name="OthersExpander"
                               ExpandDirection="Down"
                               IsExpanded="True"
-                              Header="Local Games">
+                              Header="Local Games"
+                              Visibility="Collapsed">
                         <StackPanel x:Name="OthersExpanderStack" />
                     </Expander>
                 </StackPanel>

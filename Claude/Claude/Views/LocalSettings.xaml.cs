@@ -31,7 +31,7 @@ namespace Claude.Views
         }
 
         private void UpdateGamesListing(DataTypes.Game target, bool add)
-        {
+        {                                                            
             if (add)
             {
                 int count = IndividualGames.Children.Count;
@@ -41,23 +41,14 @@ namespace Claude.Views
             }
             else
             {
-                var children = IndividualGames.Children;
-                foreach (StackPanel child in children)
-                {
-                    var childTitle = child.Children.OfType<TextBlock>().FirstOrDefault();
-                    if (childTitle.Text.Contains(target.Title))
-                    {
-                        IndividualGames.Children.Remove(child);
-                        foreach (DataTypes.Game game in FileIn.ReadUserGames())
-                        {
-                            if (game.Launcher == "Others") { UpdateGamesListing(game, true); }
-                        }
-                        return;
-                    }
+                IndividualGames.Children.Clear();
+                IndividualGames.Children.Add(new TextBlock() { Name = "nullholder", Visibility = Visibility.Collapsed });
+
+                foreach (DataTypes.Game game in FileIn.ReadUserGames()) 
+                { 
+                    if (game.Launcher == "Others") { UpdateGamesListing(game, true); } 
                 }
             }
-
-            IndividualGames.UpdateLayout();
         }
 
         private StackPanel DirPanel(int count, DataTypes.Game game)
@@ -108,11 +99,11 @@ namespace Claude.Views
                     Thumbnail = FileOut.IconDownload(id, title)
                 };
 
-                Others.Install(game);
+                FileOut.AddUserGames(game);
                 UpdateGamesListing(game, true);
 
-                MainWindow mainWindow = Application.Current.Windows.OfType<MainWindow>().SingleOrDefault();
-                if (mainWindow != null) { GameViewer.BigBoxArt(mainWindow); }
+                IEnumerable<MainWindow> mainWindow = Application.Current.Windows.OfType<MainWindow>();
+                if (mainWindow != null) { GameViewer.BigBoxArt(mainWindow.FirstOrDefault()); }
             }
 
 
@@ -125,6 +116,9 @@ namespace Claude.Views
 
             FileOut.RemoveUserGames(game);
             UpdateGamesListing(game, false);
+
+            IEnumerable<MainWindow> mainWindow = Application.Current.Windows.OfType<MainWindow>();
+            if (mainWindow != null) { GameViewer.BigBoxArt(mainWindow.FirstOrDefault()); }
         }        
     }
 }

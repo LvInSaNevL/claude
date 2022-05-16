@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Claude": {
-      "commandName": "Project",
-      "commandLineArgs": "--installer"
+      "commandName": "Project"
     }
   }
 }
