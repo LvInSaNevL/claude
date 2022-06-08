@@ -27,7 +27,16 @@ namespace Claude
 
         public static void Launch(string target)
         {
-            System.Diagnostics.Process.Start(target);
+            System.Diagnostics.Process proc = new System.Diagnostics.Process();
+            proc.StartInfo.FileName = target;
+            proc.StartInfo.UseShellExecute = true;
+
+            try { System.Diagnostics.Process.Start(target); }
+            catch (System.ComponentModel.Win32Exception e)
+            {
+                proc.StartInfo.Verb = "runas";
+                proc.Start();
+            }
         }
     }
 }

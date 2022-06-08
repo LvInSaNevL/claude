@@ -80,8 +80,10 @@ namespace Claude
 
         public struct UserDataLaunchers
         {
-            string Exe { get; set; }
-            string Install { get; set; }
+            public string Exe { get; set; }
+            public bool Start { get; set; }
+            public bool Stop { get; set; } 
+            public string[] Install { get; set; }
         }
         
         public struct UserDataOthers { }

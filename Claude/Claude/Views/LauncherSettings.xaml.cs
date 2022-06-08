@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
@@ -14,20 +15,30 @@ namespace Claude.Views
     {
         public LauncherSettings(string launcher)
         {
-            dynamic data = FileIn.ReadUserData();
-            dynamic launcherData = data[launcher];
+            DataTypes.UserData data = FileIn.ReadUserData();
+            Type udType = typeof(DataTypes.UserData);
+            PropertyInfo myFieldInfo1 = udType.GetProperty(launcher);
+            var formatData = (DataTypes.UserDataLaunchers)myFieldInfo1.GetValue(data, null);
 
             InitializeComponent();
 
+            // There has to be a better way to do this
+            // Maybe static properties?
             LauncherTitle.Text = launcher;
-            CurrentExeLoc.Text = launcherData["exe"];
+            CurrentExeLoc.Text = formatData.Exe;
             ExeChangeButt.Tag = launcher;
             AddDirButt.Tag = launcher;
+            AutoStart.Tag = launcher;
+            OnStart.Tag = (launcher, false);
+            OnStart.IsChecked = (bool)formatData.Start;
+            OnStop.Tag = (launcher, true);
+            OnStop.IsChecked = (bool)formatData.Stop;
 
-            for (int i = 0; i < launcherData["install"].Count; i++)
+            string[] installDirs = formatData.Install;
+            for (int i = 0; i < installDirs.Length; i++)
             {
-                string test = launcherData["install"][i].ToString();
-                IndividualDirs.Children.Add(DirPanel(i, test, launcher));
+                string nowDir = installDirs[i].ToString();
+                IndividualDirs.Children.Add(DirPanel(i, nowDir, launcher));
             }
         }
 
@@ -133,6 +144,30 @@ namespace Claude.Views
                     IndividualDirs.Children.Remove(parent);
                     IndividualDirs.UpdateLayout();
                 }
+            }
+        }
+
+        void LauncherAutoControl(object sender, RoutedEventArgs e)
+        {
+            var item = sender as CheckBox;
+            (string, bool) launcher = ((string, bool))item.Tag;
+
+            DataTypes.UserData data = FileIn.ReadUserData();
+            Type myTypeB = typeof(DataTypes.UserData);
+            PropertyInfo myFieldInfo1 = myTypeB.GetProperty(launcher.Item1);
+            var formatData = (DataTypes.UserDataLaunchers)myFieldInfo1.GetValue(data, null);
+                        
+            if (!launcher.Item2)
+            {
+                bool isStart = (bool)formatData.Start;
+                FileOut.ChangeUserData($"{launcher.Item1}.start", (!isStart).ToString());
+                OnStart.IsChecked = !isStart;
+            }
+            else if (launcher.Item2) 
+            {
+                bool isStop = (bool)formatData.Stop;
+                FileOut.ChangeUserData($"{launcher.Item1}.stop", (!isStop).ToString());
+                OnStop.IsChecked = !isStop;
             }
         }
     }

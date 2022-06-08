@@ -6,6 +6,7 @@ using System.Net;
 using System.Drawing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Reflection;
 
 namespace Claude
 {
@@ -25,7 +26,7 @@ namespace Claude
 
     public class FileIn
     {
-        public static dynamic ReadUserData()
+        public static DataTypes.UserData ReadUserData()
         {
             dynamic parsedData;
             string fullPath = FilePaths.resources("UserData.json");
@@ -34,14 +35,40 @@ namespace Claude
             {
                 using StreamReader reader = new StreamReader(fullPath);
                 string resutl = reader.ReadToEnd().ToString();
-                if (resutl == null) { return new NullReferenceException(); }
+                if (resutl == null) 
+                {
+                    ErrorHandling.Logger("UserData.json was null, writing empty string");
+                    // The generic empty UserData.json file, in case the file is missing. 
+                    string jsonstring = @"
+                                            {
+                                                ""claude"": {},
+                                                ""steam"": {
+                                                    ""exe"": ""C:\\Program Files(x86)\\Steam\\steam.exe"",
+                                                    ""start"": true,
+                                                    ""stop"": true,
+                                                    ""install"": [""C:\\Program Files(x86)\\Steam\\steamapps""]
+                                                },
+                                                ""battlenet"": {
+                                                    ""exe"": ""C:\\Program Files(x86)\\Battle.Net\\Battle.Net.exe"",
+                                                    ""install"": [""C:\\Program Files(x86)\\Battle.Net""]
+                                                }
+                                            }";
+                    using (FileStream fs = new FileStream(fullPath, FileMode.Truncate, FileAccess.ReadWrite))
+                    {
+                        byte[] data = new System.Text.UTF8Encoding(true).GetBytes(jsonstring);
+                        fs.Write(data, 0, data.Length);
+                    }
+
+                    return JsonConvert.DeserializeObject<DataTypes.UserData>(jsonstring);
+                }
+
                 else
                 {
-                    try { parsedData = JObject.Parse(resutl); }
-                    catch (JsonReaderException e) { return null; }
+                    try { return JsonConvert.DeserializeObject<DataTypes.UserData>(resutl); }
+                    catch (JsonReaderException e) { throw new JsonReaderException(); }
                 }
             }
-            catch (FileNotFoundException e) { return new FileNotFoundException(); }
+            catch (FileNotFoundException e) { throw new FileNotFoundException(); }
 
             return parsedData;
         }
@@ -85,29 +112,25 @@ namespace Claude
             return savePath;
         }
 
-        public static object ChangeUserData(string target, object newVal)
+        public static object ChangeUserData(string target, string newVal)
         {
             string fullPath = FilePaths.resources("UserData.json");
 
-            try
+            lock (fullPath)
             {
-                lock (fullPath)
+                dynamic data = JObject.Parse(File.ReadAllText(fullPath));
+                JToken token = data.SelectToken(target);
+                token.Replace((JToken)newVal);
+
+                using (StreamWriter writer = File.CreateText(fullPath))
                 {
-                    dynamic data = FileIn.ReadUserData();
+                    string stringData = JsonConvert.SerializeObject(data, Formatting.Indented);
+                    writer.WriteLine(stringData);
 
-                    JToken token = data.SelectToken(target);
-                    token.Replace((JToken)newVal);
-                    using (StreamWriter writer = File.CreateText(fullPath))
-                    {
-                        string stringData = JsonConvert.SerializeObject(data);
-                        writer.WriteLine(stringData);
-
-                    }
-
-                    return true;
                 }
+
+                return true;
             }
-            catch (Exception e) { return e; }
         }
 
         public static object AddUserGames(DataTypes.Game test)

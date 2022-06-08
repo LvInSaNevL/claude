@@ -13,12 +13,10 @@ using System.Threading.Tasks;
 namespace Claude
 {
     public class Steam
-    {
-        private static readonly string baseLocation = "C:\\Program Files (x86)\\Steam";
-        
+    {       
         public static List<DataTypes.Game> Installed()
         {
-            var installDirs = FileIn.ReadUserData()["Steam"]["install"];
+            String[] installDirs = FileIn.ReadUserData().Steam.Install;
             List<DataTypes.Game> appList = new List<DataTypes.Game>();
 
             foreach (string nowDir in installDirs)

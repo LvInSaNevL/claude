@@ -6,6 +6,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Newtonsoft.Json;
 
 namespace Claude
 {
@@ -14,26 +15,11 @@ namespace Claude
     /// </summary>
     public partial class Installer : Window
     {
-        // The generic empty UserData.json file, in case the file is missing. 
-        private readonly string jsonstring = @"
-                                                {
-                                                  ""claude"": {},
-                                                  ""steam"": {
-                                                        ""exe"": ""C:\\Program Files(x86)\\Steam\\steam.exe"",
-                                                        ""install"": [""C:\\Program Files(x86)\\Steam\\steamapps""]
-                                                  },
-                                                  ""battlenet"": {
-                                                        ""exe"": ""C:\\Program Files(x86)\\Battle.Net\\Battle.Net.exe"",
-                                                        ""install"": [""C:\\Program Files(x86)\\Battle.Net""]
-                                                  }
-                                                }";
-
-        private static dynamic jsondata;
+        private static DataTypes.UserData jsondata;
         public static List<DataTypes.Game> installerGames = new List<DataTypes.Game>();
 
         public Installer()
         {
-            jsondata = FileIn.ReadUserData() ?? JObject.Parse(jsonstring);
             InitializeComponent();
             Welcome();                       
         }
@@ -128,90 +114,7 @@ namespace Claude
             window.Show();
 
             this.Close();
-        }
-
-        private void AddInstallLoc(object sender, RoutedEventArgs e)
-        {
-            var item = sender as Button;
-            (StackPanel, string, string) data = ((StackPanel, string, string))item.Tag;
-            StackPanel stack = data.Item1;
-
-            string startDir = InstallLocation(data.Item3);
-
-            var dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = InstallLocation(data.Item3);
-            dialog.IsFolderPicker = true;
-            CommonFileDialogResult result = dialog.ShowDialog();
-
-            if (result == CommonFileDialogResult.Ok)
-            {
-                StackPanel newStack = new StackPanel() { Orientation = Orientation.Horizontal };
-                newStack.Children.Add(new TextBlock() { Text = dialog.FileName });
-                Button removeButton = new Button() { Content = "Remove", Tag = (newStack, data.Item2, dialog.FileName) };
-                removeButton.Click += RemoveInstallLoc;
-                newStack.Children.Add(removeButton);
-                stack.Children.Insert(stack.Children.Count - 1, newStack);
-
-                var token = jsondata.SelectToken(data.Item2);
-                List<string> newLocations = new List<string>();
-                foreach(var oldLoc in token.Children()) { newLocations.Add(oldLoc.ToString()); }
-                newLocations.Add(dialog.FileName);
-                token.Replace(new JArray(newLocations));
-            }
-        }
-
-        private void RemoveInstallLoc(object sender, RoutedEventArgs e)
-        {
-            var item = sender as Button;
-            (StackPanel, string, string) data = ((StackPanel, string, string))item.Tag;
-            StackPanel stack = data.Item1;
-
-            var token = jsondata.SelectToken(data.Item2);
-            List<string> newLocations = new List<string>();
-            foreach (var oldLoc in token.Children()) { newLocations.Add(oldLoc.ToString()); }
-            newLocations.Remove(data.Item3);
-            token.Replace(new JArray(newLocations));
-
-            ContentField.Children.Remove(data.Item1);
-            OtherPage();
-        }               
-
-        private static void ChangeExePath(object sender, RoutedEventArgs e)
-        {
-            var item = sender as Button;
-            (TextBlock, string) data = ((TextBlock, string))item.Tag;
-            TextBlock text = data.Item1;
-
-            OpenFileDialog openFile = new OpenFileDialog()
-            {
-                DefaultExt = ".exe",
-                InitialDirectory = "C:\\Program Files (x86)"
-            };
-            openFile.Filter = "Exe Files (.exe)|*.exe|All Files (*.*)|*.*";
-            openFile.FilterIndex = 1;
-            var result = openFile.ShowDialog();
-
-            if (result == true)
-            {
-                string fileName = openFile.FileName;
-                text.Text = fileName;
-                JToken token = jsondata.SelectToken(data.Item2);
-                token.Replace(fileName);
-            }
-        }
-
-        //Get-ChildItem -Path C:\ -Include "steam.exe" -File -Recurse -ErrorAction SilentlyContinue | % { $_.FullName }
-        private static string InstallLocation(string exe)
-        {
-            Dictionary<string, string> defaults = new Dictionary<string, string>()
-            {
-                { "Steam", "C:\\Program Files (x86)\\Steam" },
-                { "BattleNet", "C:\\Program Files(x86)\\Battle.net" },
-                { "Origin", "C:\\Program Files(x86)\\Origin" },
-                { "Ubisoft", "C:\\Program Files(x86)\\Ubisoft" }
-            };
-            return jsondata.SelectToken($"{exe}.exe") == null ? (string)jsondata.SelectToken($"{exe}.exe") : defaults[exe];
-        }
+        } 
 
         private void DoNothing(object sender, RoutedEventArgs e) { }
     }

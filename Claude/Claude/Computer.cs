@@ -30,6 +30,8 @@ namespace Claude
             Directory.CreateDirectory(FilePaths.cache);
             Directory.CreateDirectory(FilePaths.cache);
 
+            if (args.Contains("--NoApi")) { NoApi = true; }
+
             if (args.Contains("--installer")) 
             {
                 Installer wizard = new Installer();
@@ -57,9 +59,16 @@ namespace Claude
         {
             System.Windows.Application.Current.Shutdown();
         }
-                
+        
+        private static bool NoApi = false;
         public static List<DataTypes.Game> CallClaude(List<DataTypes.Game> games)
         {
+            if (NoApi) 
+            {
+                ErrorHandling.Logger("Not calling Claude-API due to command line argument --NoApi");
+                return new List<DataTypes.Game>();
+            }
+
             List<DataTypes.LilGame> list = new List<DataTypes.LilGame>();
             foreach (DataTypes.Game game in games)
             {

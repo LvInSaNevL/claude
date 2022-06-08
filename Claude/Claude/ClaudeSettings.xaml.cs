@@ -26,24 +26,24 @@ namespace Claude
 
             switch (target)
             {
-                case "claude":
-                    contentField.Children.Add(new Views.LauncherSettings("Steam"));
-                    break;
+                //case "claude":
+                //    contentField.Children.Add(new Views.LauncherSettings("Claude"));
+                //    break;
                 case "steam":
                     contentField.Children.Add(new Views.LauncherSettings("Steam"));
                     break;
-                case "origin":
-                    contentField.Children.Add(new Views.LauncherSettings("Origin"));
-                    break;
+                //case "origin":
+                //    contentField.Children.Add(new Views.LauncherSettings("Origin"));
+                //    break;
                 case "battlenet":
                     contentField.Children.Add(new Views.LauncherSettings("BattleNet"));
                     break;
                 case "other":
                     contentField.Children.Add(new Views.LocalSettings());
                     break;
-                case "donate":
-                    contentField.Children.Add(new Views.LauncherSettings("BattleNet"));
-                    break;
+                //case "donate":
+                //    contentField.Children.Add(new Views.LauncherSettings("Donate"));
+                //    break;
                 default:
                     TextBlock errorText = new TextBlock();
                     errorText.Text = $"Page not found: {target}";
@@ -56,36 +56,6 @@ namespace Claude
         {
             var item = sender as Button;
             SettingsContentLoader(item.Tag.ToString());
-        }
-
-        public static void InstallWizard(object sender, RoutedEventArgs e)
-        {
-            Claude.Installer wizard = new Claude.Installer();
-            wizard.Show();
-        }
-
-        public static void ChangePathClick(object sender, RoutedEventArgs e)
-        {
-            var item = sender as Button;
-            (TextBlock, string) data = ((TextBlock, string))item.Tag;
-            TextBlock text = data.Item1;
-
-            OpenFileDialog openFile = new OpenFileDialog()
-            {
-                DefaultExt = ".exe",
-                InitialDirectory = "C:\\Program Files (x86)"
-            };
-            openFile.Filter = "Exe Files (.exe)|*.exe|All Files (*.*)|*.*";
-            openFile.FilterIndex = 1;
-            var result = openFile.ShowDialog();
-
-            if (result == true)
-            {
-                string filename = openFile.FileName;
-                dynamic userData = FileIn.ReadUserData();
-                FileOut.ChangeUserData(data.Item2, filename);
-                text.Text = filename;
-            }
         }
     }
 }

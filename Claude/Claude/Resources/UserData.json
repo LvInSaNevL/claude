@@ -3,6 +3,8 @@
   "Local": {},
   "Steam": {
     "exe": "C:Program Files (x86)\\Steam\\steam.exe",
+    "start": "True",
+    "stop": "False",
     "install": [
       "C:\\Program Files (x86)\\Steam\\steamapps\\",
       "E:\\SteamLibrary\\steamapps"
@@ -10,16 +12,22 @@
   },
   "BattleNet": {
     "exe": "C:Program Files (x86)\\Battle.net\\Battle.Net.exe",
+    "start": true,
+    "stop": true,
     "install": [
       "C:\\Program Files (x86)\\Battle.net"
     ]
   },
   "Origin": {
     "exe": "",
+    "start": true,
+    "stop": true,
     "install": []
   },
   "Ubisoft": {
     "exe": "",
+    "start": true,
+    "stop": true,
     "install": []
   }
 }

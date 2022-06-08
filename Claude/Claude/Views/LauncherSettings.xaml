@@ -25,5 +25,13 @@
                     Content="Add another directory" 
                     Click="AddGameDirClick" />
         </StackPanel>
+        <StackPanel x:Name="LauncherControl"
+                    Orientation="Horizontal">
+            <StackPanel x:Name="AutoStart"
+                        Orientation="Horizontal">
+                <CheckBox Name="OnStart" Click="LauncherAutoControl" Tag="Launcher">Start on launch</CheckBox>
+                <CheckBox Name="OnStop" Click="LauncherAutoControl" Tag="Launcher">Stop on close</CheckBox>
+            </StackPanel>
+        </StackPanel>
     </StackPanel>
 </UserControl>

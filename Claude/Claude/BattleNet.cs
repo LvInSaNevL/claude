@@ -48,8 +48,8 @@ namespace Claude
         public static List<DataTypes.Game> InstalledGames()
         {
             List<DataTypes.Game> games = new List<DataTypes.Game>();
-            dynamic userData = FileIn.ReadUserData();
-            var userDirs = userData.SelectToken("BattleNet.install");
+            DataTypes.UserData userData = FileIn.ReadUserData();
+            string[] userDirs = userData.BattleNet.Install;
 
             foreach (string dir in userDirs)
             {
